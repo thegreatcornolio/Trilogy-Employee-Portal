@@ -1157,7 +1157,10 @@ function renderSnapshot() {
   document.getElementById('snap-role').textContent  = e.JobTitle || '—';
   document.getElementById('snap-campaign').textContent = '📋 ' + (e.Campaign || '—');
 
-  const mgr  = S.allEmployees.find(m => m.EmployeeID == e.ReportsTo);
+  // ReportsTo stores the manager's full name — match by name
+  const mgr  = S.allEmployees.find(m =>
+    (m.FirstName + ' ' + m.LastName).toLowerCase() === (e.ReportsTo || '').toLowerCase()
+  );
   const mgrN = mgr ? mgr.FirstName + ' ' + mgr.LastName : '—';
 
   document.getElementById('snap-grid').innerHTML = `

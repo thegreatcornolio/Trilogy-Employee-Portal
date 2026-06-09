@@ -462,7 +462,10 @@ async function loadApp(account) {
       });
     } catch { S.detail = {}; }
 
-    S.manager = all.find(m => m.EmployeeID == S.employee.ReportsTo) || null;
+    // ReportsTo stores the manager's full name, not their ID — match by name
+    S.manager = all.find(m =>
+      (m.FirstName + ' ' + m.LastName).toLowerCase() === (S.employee.ReportsTo || '').toLowerCase()
+    ) || null;
     S.leave   = calcLeave(S.employee, S.detail);
 
     show('app');
@@ -1013,6 +1016,7 @@ async function submitLeave() {
       manager_email: S.manager ? (S.manager.WorkEmail || S.manager.PersonalEmail || '') : '',
     };
 
+    console.log('Submitting payload:', JSON.stringify(payload));
     await callFlow(FLOWS.SAVE_LEAVE, payload);
 
     // 3. Success
