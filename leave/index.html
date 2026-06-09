@@ -493,7 +493,11 @@ function fmtDate(d)  { if (!d) return '—'; return new Date(d+'T12:00:00').toLo
 function unwrap(d) { return d.body ? (typeof d.body==='string' ? JSON.parse(d.body) : d.body) : d; }
 async function callFlow(url, body={}) {
   const r = await fetch(url, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) });
-  if (!r.ok) throw new Error('Flow '+r.status);
+  if (!r.ok) {
+    const errText = await r.text().catch(() => '');
+    console.error('Flow error', r.status, errText);
+    throw new Error('Flow ' + r.status + (errText ? ': ' + errText.slice(0,200) : ''));
+  }
   return unwrap(await r.json());
 }
 
@@ -992,25 +996,17 @@ async function submitLeave() {
 
     // 2. Call SAVE_LEAVE flow
     btn.textContent = '⏳ Saving request…';
-    // Payload matches triggerBody() keys in the "Save Leave Record" Power Automate flow
+    // All values as strings — matches the flow's JSON schema (all fields typed as string)
     const payload = {
-      employee_id:   S.employee.EmployeeID,
-      leave_type:    S.leaveType === 'Annual'   ? 'Annual Leave' :
-                     S.leaveType === 'Sick'     ? 'Sick Leave' :
-                     S.leaveType === 'Parental' ? 'Parental Leave' : 'Family Responsibility',
-      start_date:    S.startDate,
-      end_date:      S.endDate,
-      days:          S.days,
-      status:        'Pending',
-      reason:        S.reason,
-      // Extra fields below — ignored by the current flow but available when you
-      // add manager notification steps to the flow later:
-      employee_name:     S.employee.FirstName+' '+S.employee.LastName,
-      employee_email:    S.employee.WorkEmail || S.employee.PersonalEmail || '',
-      manager_email:     S.manager ? (S.manager.WorkEmail||S.manager.PersonalEmail||'') : '',
-      manager_name:      S.manager ? S.manager.FirstName+' '+S.manager.LastName : '',
-      document_url:      S.fileUrl || '',
-      document_filename: S.file ? S.file.name : '',
+      employee_id: String(S.employee.EmployeeID),
+      leave_type:  S.leaveType === 'Annual'   ? 'Annual Leave'   :
+                   S.leaveType === 'Sick'      ? 'Sick Leave'     :
+                   S.leaveType === 'Parental'  ? 'Parental Leave' : 'Family Responsibility',
+      start_date:  S.startDate,
+      end_date:    S.endDate,
+      days:        String(S.days),
+      status:      'Pending',
+      reason:      S.reason,
     };
 
     await callFlow(FLOWS.SAVE_LEAVE, payload);
