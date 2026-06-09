@@ -501,6 +501,16 @@ async function callFlow(url, body={}) {
     console.error('Flow error', r.status, errText);
     throw new Error('Flow ' + r.status + (errText ? ': ' + errText.slice(0,200) : ''));
   }
+  // Safely parse response — Power Automate sometimes returns empty or non-JSON body
+  try {
+    const text = await r.text();
+    if (!text || !text.trim()) return {};
+    return unwrap(JSON.parse(text));
+  } catch (e) {
+    console.warn('Flow response parse warning (non-fatal):', e.message);
+    return {}; // flow succeeded (2xx), just couldn't parse body
+  }
+}
   return unwrap(await r.json());
 }
 
