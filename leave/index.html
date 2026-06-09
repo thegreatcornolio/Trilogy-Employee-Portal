@@ -998,15 +998,19 @@ async function submitLeave() {
     btn.textContent = '⏳ Saving request…';
     // All values as strings — matches the flow's JSON schema (all fields typed as string)
     const payload = {
-      employee_id: String(S.employee.EmployeeID),
-      leave_type:  S.leaveType === 'Annual'   ? 'Annual Leave'   :
-                   S.leaveType === 'Sick'      ? 'Sick Leave'     :
-                   S.leaveType === 'Parental'  ? 'Parental Leave' : 'Family Responsibility',
-      start_date:  S.startDate,
-      end_date:    S.endDate,
-      days:        String(S.days),
-      status:      'Pending',
-      reason:      S.reason,
+      employee_id:   String(S.employee.EmployeeID),
+      leave_type:    S.leaveType === 'Annual'   ? 'Annual Leave'   :
+                     S.leaveType === 'Sick'      ? 'Sick Leave'     :
+                     S.leaveType === 'Parental'  ? 'Parental Leave' : 'Family Responsibility',
+      start_date:    S.startDate,
+      end_date:      S.endDate,
+      days:          String(S.days),
+      status:        'Pending',
+      reason:        S.reason,
+      // Extra fields for the email notification step in the flow
+      employee_name: S.employee.FirstName + ' ' + S.employee.LastName,
+      manager_name:  S.manager ? S.manager.FirstName + ' ' + S.manager.LastName : '',
+      manager_email: S.manager ? (S.manager.WorkEmail || S.manager.PersonalEmail || '') : '',
     };
 
     await callFlow(FLOWS.SAVE_LEAVE, payload);
