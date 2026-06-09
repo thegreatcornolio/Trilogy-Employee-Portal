@@ -355,7 +355,7 @@
 const CONFIG = {
   azureClientId: '4b515ddf-72b9-43eb-b36b-82fc69296a7c',
   azureTenantId: '77cde95f-930f-495e-89c6-4d2c30f6df21',
-  redirectUri:   'https://portal.trilogybpo.com/leave/',
+  redirectUri:   'https://portal.trilogybpo.com',
   hrBase:        'https://hr.trilogybpo.com',
 };
 
@@ -365,8 +365,8 @@ const FLOWS = {
   SAVE_LEAVE:    'https://default77cde95f930f495e89c64d2c30f6df.21.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/2f9acaa0f0254a72a662cbf4541f4da3/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=6K_5uXvdvOz7pFfDeQtwhdqfRSxmxz1Ib_sfZHHSD4k',
 };
 
-// Graph scopes — Files.ReadWrite needed for document upload to OneDrive
-const SCOPES = ['User.Read', 'Mail.ReadBasic', 'Files.ReadWrite'];
+// Leave page only needs User.Read — employee lookup is done via Power Automate flows
+const SCOPES = ['User.Read'];
 
 // SA Public Holidays 2026 (for working-days calculation)
 const HOLIDAYS = new Set([
