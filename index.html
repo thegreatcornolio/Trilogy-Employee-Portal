@@ -431,6 +431,29 @@
     }
 
     /* ── PRINT ── */
+    /* ── LEAVE HISTORY ── */
+    .lh-item { display:flex; align-items:flex-start; gap:10px; padding:9px 0; border-bottom:1px solid var(--border); }
+    .lh-item:last-child { border-bottom:none; }
+    .lh-pill { font-family:'Montserrat',sans-serif; font-size:10px; font-weight:700; padding:2px 8px; border-radius:4px; white-space:nowrap; flex-shrink:0; }
+    .lh-pending  { background:#fef3c7; color:#92400e; }
+    .lh-approved { background:var(--green-light); color:var(--green-dark); }
+    .lh-rejected { background:#fee2e2; color:var(--red); }
+    .lh-type  { font-family:'Montserrat',sans-serif; font-size:12px; font-weight:700; color:var(--text); margin-bottom:2px; }
+    .lh-dates { font-size:11px; color:var(--text3); }
+
+    /* ── TEAM APPROVAL CARDS ── */
+    .ta-card { background:var(--offwhite); border:1px solid var(--border); border-radius:var(--radius-lg); padding:14px 16px; margin-bottom:10px; }
+    .ta-card:last-child { margin-bottom:0; }
+    .ta-emp  { font-family:'Montserrat',sans-serif; font-size:13px; font-weight:800; color:var(--text); margin-bottom:3px; }
+    .ta-meta { font-size:12px; color:var(--text2); margin-bottom:4px; }
+    .ta-reason { font-size:11px; color:var(--text3); font-style:italic; margin-bottom:10px; }
+    .ta-btns { display:flex; gap:8px; }
+    .btn-approve { background:var(--green); color:var(--navy); font-family:'Montserrat',sans-serif; font-size:11px; font-weight:700; padding:6px 16px; border:none; border-radius:6px; cursor:pointer; transition:all 0.15s; }
+    .btn-approve:hover { background:#5fff20; }
+    .btn-reject  { background:transparent; color:var(--red); border:1px solid var(--red); font-family:'Montserrat',sans-serif; font-size:11px; font-weight:700; padding:6px 16px; border-radius:6px; cursor:pointer; transition:all 0.15s; }
+    .btn-reject:hover  { background:#fee2e2; }
+    .btn-approve:disabled, .btn-reject:disabled { opacity:0.4; cursor:not-allowed; }
+
     @media print {
       .nav, .hero, .note-bar { display: none !important; }
       .card { break-inside: avoid; border: 1px solid #ccc; }
@@ -634,7 +657,18 @@
         </div>
       </div>
 
-      <!-- ── 8  FINANCE PULSE (manager/HR only) ── -->
+      <!-- ── 8  TEAM LEAVE REQUESTS (manager/HR only, col span 3) ── -->
+      <div class="card col-span-3 manager-only" style="display:none">
+        <div class="card-header">
+          <div class="card-title"><div class="card-icon icon-o">📋</div>Team Leave Requests</div>
+          <span class="badge badge-grey" id="team-approvals-badge">0 pending</span>
+        </div>
+        <div class="card-body" id="team-approvals-body">
+          <div class="skel" style="height:80px"></div>
+        </div>
+      </div>
+
+      <!-- ── 9  FINANCE PULSE (manager/HR only) ── -->
       <div class="card manager-only" style="display:none">
         <div class="card-header">
           <div class="card-title"><div class="card-icon icon-g">💰</div>Finance Pulse</div>
@@ -688,8 +722,10 @@ const CONFIG = {
 //  🔗  POWER AUTOMATE FLOWS
 // ─────────────────────────────────────────────────────────────────
 const FLOWS = {
-  GET_EMPLOYEES:  'https://default77cde95f930f495e89c64d2c30f6df.21.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/845f7381bca24e189eb44725203089dd/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=QrjlEFKXktx5JYxWNb8LgUJAxi8TGzHqLjXh0RriG0U',
-  GET_DETAIL:     'https://default77cde95f930f495e89c64d2c30f6df.21.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/6b82b43d3cc048efb566f7ff40093ad8/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=iqilALe0lU6amkgr8t_Y-zIIUjaefCz2qgeQjEeys9c',
+  GET_EMPLOYEES:     'https://default77cde95f930f495e89c64d2c30f6df.21.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/845f7381bca24e189eb44725203089dd/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=QrjlEFKXktx5JYxWNb8LgUJAxi8TGzHqLjXh0RriG0U',
+  GET_DETAIL:        'https://default77cde95f930f495e89c64d2c30f6df.21.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/6b82b43d3cc048efb566f7ff40093ad8/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=iqilALe0lU6amkgr8t_Y-zIIUjaefCz2qgeQjEeys9c',
+  GET_LEAVE_RECORDS: 'https://default77cde95f930f495e89c64d2c30f6df.21.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/3998c9c42b8f473995fabf9c9f9c7102/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=E2JBILmdXEcO33-MirhSylDi6S5TAi96ghbGknVSzA0',
+  APPROVE_LEAVE:     'https://default77cde95f930f495e89c64d2c30f6df.21.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/3531e6f78a34492882d7ec3b5c878cf2/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=DBkS3MssGKGwq37wcBoXEKphGUgVuM_D5zReB4JkDFE',
 };
 
 // MS Graph scopes required — add in Azure app registration
@@ -710,6 +746,9 @@ const S = {
   recentFiles: [],     // Recent SharePoint files
   recentEmails:[],     // Unread emails
   activeTab:   'meetings',
+  pendingLeave:    [],   // Employee's own pending leave requests
+  myLeaveHistory:  [],   // All employee's own leave records
+  teamPendingLeave:[],   // Direct reports' pending leave (manager/HR)
 };
 
 // ─────────────────────────────────────────────────────────────────
@@ -1054,6 +1093,9 @@ async function loadDashboard(account) {
     // 8. Load team leave status async (non-blocking, up to 8 teammates)
     loadTeamLeaveAsync();
 
+    // 9. Load pending leave requests async
+    loadPendingLeaveAsync();
+
   } catch (err) {
     console.error('loadDashboard:', err);
     showScreen('login-screen');
@@ -1097,6 +1139,50 @@ async function loadTeamLeaveAsync() {
   });
 
   renderTeam(); // Re-render with leave status populated
+}
+
+async function loadPendingLeaveAsync() {
+  try {
+    const raw = await flow(FLOWS.GET_LEAVE_RECORDS, { employee_id: String(S.employee.EmployeeID) });
+    const records = parseLeaveRecords(raw);
+    S.myLeaveHistory = records.sort((a,b) => new Date(b.StartDate||b.start_date) - new Date(a.StartDate||a.start_date));
+    S.pendingLeave   = records.filter(r => (r.Status||r.status||'') === 'Pending');
+    const leave = leaveCalc(S.employee, S.detail);
+    renderLeave(leave);   // re-render with history
+    renderAlerts(leave);  // re-render with pending count
+  } catch (e) {
+    console.warn('My leave records failed:', e.message);
+  }
+  // Load team pending requests for managers
+  if (S.role !== 'employee') loadTeamApprovalsAsync();
+}
+
+async function loadTeamApprovalsAsync() {
+  const directReports = S.allEmployees.filter(e =>
+    (e.ReportsTo || '').toLowerCase() === (S.employee.FirstName + ' ' + S.employee.LastName).toLowerCase()
+  );
+  if (!directReports.length) { renderTeamApprovals(); return; }
+
+  const results = await Promise.allSettled(
+    directReports.map(emp =>
+      flow(FLOWS.GET_LEAVE_RECORDS, { employee_id: String(emp.EmployeeID) })
+        .then(raw => parseLeaveRecords(raw)
+          .filter(r => (r.Status||r.status||'') === 'Pending')
+          .map(r => ({ ...r, _emp: emp }))
+        )
+    )
+  );
+  S.teamPendingLeave = results
+    .filter(r => r.status === 'fulfilled')
+    .flatMap(r => r.value);
+  renderTeamApprovals();
+}
+
+function parseLeaveRecords(raw) {
+  if (Array.isArray(raw)) return raw;
+  if (raw.ResultSets && raw.ResultSets.Table1) return raw.ResultSets.Table1;
+  if (raw.value) return raw.value;
+  return [];
 }
 
 // ─────────────────────────────────────────────────────────────────
@@ -1197,6 +1283,28 @@ function renderLeave(leave) {
   const sP = (leave.sick.taken   / leave.sick.total)   * 100;
   const fP = (leave.family.taken / leave.family.total)  * 100;
 
+  // Leave history rows
+  const hist = (S.myLeaveHistory || []).slice(0, 6);
+  const histHTML = hist.length ? `
+    <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border)">
+      <div style="font-family:'Montserrat',sans-serif;font-size:10px;font-weight:700;
+                  letter-spacing:0.08em;text-transform:uppercase;color:var(--text3);margin-bottom:8px">
+        My Applications
+      </div>
+      ${hist.map(r => {
+        const st  = r.Status || r.status || 'Pending';
+        const cls = st === 'Approved' ? 'lh-approved' : st === 'Rejected' ? 'lh-rejected' : 'lh-pending';
+        const ico = st === 'Approved' ? '✓' : st === 'Rejected' ? '✗' : '⏳';
+        return `<div class="lh-item">
+          <div style="flex:1">
+            <div class="lh-type">${r.LeaveType||r.leave_type||'Leave'}</div>
+            <div class="lh-dates">${r.StartDate||r.start_date} → ${r.EndDate||r.end_date} · ${r.Days||r.days} day(s)</div>
+          </div>
+          <span class="lh-pill ${cls}">${ico} ${st}</span>
+        </div>`;
+      }).join('')}
+    </div>` : '';
+
   document.getElementById('leave-body').innerHTML = `
     <div class="leave-block">
       <div class="leave-row">
@@ -1229,8 +1337,70 @@ function renderLeave(leave) {
                 font-size:11px;color:var(--text3);text-align:center;line-height:1.6">
       Entitlement: ${leave.annual.total} days annual · Leave year resets on employment anniversary
     </div>
+    ${histHTML}
   `;
   setTimeout(animateBars, 80);
+}
+
+function renderTeamApprovals() {
+  const pending = S.teamPendingLeave || [];
+  const badge   = document.getElementById('team-approvals-badge');
+  const body    = document.getElementById('team-approvals-body');
+  if (!badge || !body) return;
+
+  badge.textContent = pending.length + ' pending';
+  badge.className   = 'badge ' + (pending.length ? 'badge-orange' : 'badge-grey');
+
+  if (!pending.length) {
+    body.innerHTML = `<div class="no-alerts"><div class="no-alerts-ico">✅</div>
+      <div class="no-alerts-txt">No pending leave requests from your team.</div></div>`;
+    return;
+  }
+
+  body.innerHTML = pending.map((r, i) => {
+    const emp    = r._emp;
+    const type   = r.LeaveType  || r.leave_type  || 'Leave';
+    const from   = r.StartDate  || r.start_date  || '';
+    const to     = r.EndDate    || r.end_date    || '';
+    const days   = r.Days       || r.days        || '?';
+    const reason = r.Reason     || r.reason      || '';
+    return `<div class="ta-card">
+      <div class="ta-emp">${emp.FirstName} ${emp.LastName}
+        <span style="font-weight:500;color:var(--text3);font-size:11px;margin-left:6px">${emp.JobTitle||''}</span>
+      </div>
+      <div class="ta-meta">${type} · ${from} → ${to} · <strong>${days} day${days!=1?'s':''}</strong></div>
+      ${reason ? `<div class="ta-reason">"${reason}"</div>` : ''}
+      <div class="ta-btns">
+        <button class="btn-approve" id="ta-app-${i}" onclick="approveLeaveFromPortal(${i},'Approved')">✓ Approve</button>
+        <button class="btn-reject"  id="ta-rej-${i}" onclick="approveLeaveFromPortal(${i},'Rejected')">✗ Reject</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function approveLeaveFromPortal(idx, status) {
+  const r   = S.teamPendingLeave[idx];
+  const emp = r._emp;
+  const appBtn = document.getElementById('ta-app-'+idx);
+  const rejBtn = document.getElementById('ta-rej-'+idx);
+  if (appBtn) appBtn.disabled = true;
+  if (rejBtn) rejBtn.disabled = true;
+
+  try {
+    await flow(FLOWS.APPROVE_LEAVE, {
+      employee_id: String(emp.EmployeeID),
+      start_date:  r.StartDate || r.start_date,
+      status:      status,
+      approved_by: S.employee.FirstName + ' ' + S.employee.LastName,
+    });
+    // Remove from pending list and re-render
+    S.teamPendingLeave.splice(idx, 1);
+    renderTeamApprovals();
+  } catch (e) {
+    alert('Failed to update: ' + e.message);
+    if (appBtn) appBtn.disabled = false;
+    if (rejBtn) rejBtn.disabled = false;
+  }
 }
 
 function renderQuickActions() {
@@ -1324,6 +1494,19 @@ function renderAlerts(leave) {
     alerts.push({ type:'info', icon:'📋',
       title: 'Onboarding Incomplete',
       body:  'You have outstanding onboarding steps. Contact HR to complete the process.'
+    });
+  }
+
+  // Pending leave requests
+  const pending = S.pendingLeave || [];
+  if (pending.length > 0) {
+    alerts.push({ type:'info', icon:'⏳',
+      title: pending.length + ' Leave Request' + (pending.length > 1 ? 's' : '') + ' Awaiting Approval',
+      body: pending.map(r =>
+        (r.LeaveType || r.leave_type || 'Leave') + ' · ' +
+        (r.StartDate || r.start_date) + ' → ' + (r.EndDate || r.end_date) +
+        ' (' + (r.Days || r.days) + ' day' + ((r.Days||r.days) != 1 ? 's' : '') + ')'
+      ).join('<br>')
     });
   }
 
