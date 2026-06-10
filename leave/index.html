@@ -515,8 +515,6 @@ async function callFlow(url, body={}) {
     return {}; // flow succeeded (2xx), just couldn't parse body
   }
 }
-  return unwrap(await r.json());
-}
 
 function prorateAnnual(entitlement, startDate) {
   if (!startDate) return entitlement;
