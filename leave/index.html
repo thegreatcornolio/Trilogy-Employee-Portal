@@ -395,25 +395,26 @@ const S = {
 };
 
 // ── MSAL ──────────────────────────────────────────────────────────────
-let msalApp;
-
-async function ensureMsal() {
-  if (msalApp) return msalApp;
-  if (!window.msal) throw new Error('MSAL library failed to load.');
-  msalApp = new msal.PublicClientApplication({
-    auth: {
-      clientId:    CONFIG.azureClientId,
-      authority:   'https://login.microsoftonline.com/' + CONFIG.azureTenantId,
-      redirectUri: CONFIG.redirectUri,
-    },
-    cache: { cacheLocation: 'sessionStorage', storeAuthStateInCookie: true },
-  });
-  return msalApp;
+// MSAL initialised synchronously — so signIn() can call loginRedirect
+// directly from the button click without awaiting (Safari blocks navigation
+// if there's an await before it in the gesture handler)
+let msalApp = null;
+if (window.msal) {
+  try {
+    msalApp = new msal.PublicClientApplication({
+      auth: {
+        clientId:    CONFIG.azureClientId,
+        authority:   'https://login.microsoftonline.com/' + CONFIG.azureTenantId,
+        redirectUri: CONFIG.redirectUri,
+      },
+      cache: { cacheLocation: 'sessionStorage', storeAuthStateInCookie: true },
+    });
+  } catch (e) { console.error('MSAL constructor:', e); }
 }
 
 async function init() {
+  if (!msalApp) { show('login-screen'); return; }
   try {
-    await ensureMsal();
     const resp = await msalApp.handleRedirectPromise();
     if (resp) { await loadApp(resp.account); return; }
     const accounts = msalApp.getAllAccounts();
@@ -422,16 +423,19 @@ async function init() {
   } catch (e) { console.error('Init:', e); show('login-screen'); }
 }
 
-async function signIn() {
-  document.getElementById('login-err').style.display = 'none';
-  try {
-    await ensureMsal();
-    await msalApp.loginRedirect({ scopes: SCOPES });
-  } catch (e) {
-    const el = document.getElementById('login-err');
-    el.textContent = e.message || 'Sign-in failed.';
-    el.style.display = 'block';
+// NOT async — loginRedirect must be called synchronously from the button gesture
+function signIn() {
+  const errEl = document.getElementById('login-err');
+  errEl.style.display = 'none';
+  if (!msalApp) {
+    errEl.textContent = 'Authentication not available — please refresh the page.';
+    errEl.style.display = 'block';
+    return;
   }
+  msalApp.loginRedirect({ scopes: SCOPES }).catch(e => {
+    errEl.textContent = e.message || 'Sign-in failed. Please try again.';
+    errEl.style.display = 'block';
+  });
 }
 
 // ── DATA LOAD ─────────────────────────────────────────────────────────
