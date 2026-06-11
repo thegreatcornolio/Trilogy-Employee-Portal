@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tea with T | Archive</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { background:#E6E6E6; font-family:'Montserrat',Arial,sans-serif; color:#2a2a2a; }
+
+    /* NAV */
+    .nav {
+      background:#1e1e1e; height:52px; display:flex; align-items:center;
+      justify-content:space-between; padding:0 24px; position:sticky; top:0; z-index:100;
+    }
+    .nav-left { display:flex; align-items:center; gap:12px; }
+    .nav-div  { width:1px; height:18px; background:rgba(255,255,255,0.15); }
+    .nav-link {
+      color:rgba(255,255,255,0.5); font-size:11px; font-weight:600;
+      text-decoration:none; letter-spacing:0.06em;
+    }
+    .nav-link:hover { color:#4AFD0E; }
+    .nav-cur { color:rgba(255,255,255,0.9); font-size:11px; font-weight:700; letter-spacing:0.06em; }
+
+    /* HERO */
+    .hero {
+      background:#515151; padding:52px 24px 44px; text-align:center;
+      border-bottom:4px solid #4AFD0E;
+    }
+    .hero-eye {
+      font-size:10px; font-weight:700; letter-spacing:3px; color:#4AFD0E;
+      text-transform:uppercase; margin-bottom:12px;
+    }
+    .hero-title {
+      font-size:52px; font-weight:900; color:#fff; line-height:1;
+      letter-spacing:-2px; margin-bottom:10px;
+    }
+    .hero-title span { color:#4AFD0E; }
+    .hero-sub {
+      font-size:12px; font-weight:500; color:#A5A5A5; letter-spacing:2px;
+      text-transform:uppercase; margin-bottom:20px;
+    }
+    .hero-rule { width:48px; height:3px; background:#4AFD0E; border-radius:2px; margin:0 auto 20px; }
+    .hero-desc {
+      font-size:14px; color:#C8C8C8; line-height:1.8; max-width:480px; margin:0 auto;
+    }
+
+    /* EDITIONS GRID */
+    .container { max-width:720px; margin:0 auto; padding:40px 24px 64px; }
+    .section-lbl {
+      font-size:10px; font-weight:700; letter-spacing:3px; color:#515151;
+      text-transform:uppercase; margin-bottom:20px;
+    }
+    .editions { display:flex; flex-direction:column; gap:16px; }
+
+    /* EDITION CARD */
+    .card {
+      background:#fff; border-radius:4px; overflow:hidden;
+      display:flex; text-decoration:none; color:inherit;
+      transition:transform 0.18s, box-shadow 0.18s;
+      box-shadow:0 1px 3px rgba(0,0,0,0.08);
+    }
+    .card:hover { transform:translateY(-2px); box-shadow:0 4px 16px rgba(0,0,0,0.12); }
+    .card-accent { width:5px; background:#4AFD0E; flex-shrink:0; }
+    .card-body { padding:20px 24px; flex:1; }
+    .card-tag {
+      display:inline-block; font-size:9px; font-weight:700; letter-spacing:2.5px;
+      text-transform:uppercase; color:#4AFD0E; background:#515151;
+      padding:3px 8px; border-radius:2px; margin-bottom:8px;
+    }
+    .card-date {
+      font-size:11px; font-weight:600; color:#A5A5A5; letter-spacing:1.5px;
+      text-transform:uppercase; margin-bottom:6px;
+    }
+    .card-title {
+      font-size:18px; font-weight:800; color:#515151; letter-spacing:-0.5px; margin-bottom:6px;
+    }
+    .card-preview { font-size:13px; color:#777; line-height:1.7; }
+    .card-cta {
+      display:flex; align-items:center; gap:6px; margin-top:14px;
+      font-size:11px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:#515151;
+    }
+    .card-cta::after { content:'→'; color:#4AFD0E; font-size:14px; }
+    .card-right { display:flex; align-items:center; padding:0 24px 0 0; }
+    .card-arrow { font-size:24px; color:#E6E6E6; }
+
+    /* LATEST BADGE */
+    .latest-badge {
+      background:#4AFD0E; color:#515151; font-size:9px; font-weight:800;
+      letter-spacing:2px; text-transform:uppercase; padding:3px 8px; border-radius:2px;
+      margin-left:8px; vertical-align:middle;
+    }
+
+    /* EMPTY STATE */
+    .empty { text-align:center; padding:40px 24px; color:#A5A5A5; font-size:14px; }
+
+    @media (max-width:500px) {
+      .hero-title { font-size:38px; }
+      .card-right  { display:none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-left">
+    <a href="../" class="nav-link">← Portal</a>
+    <div class="nav-div"></div>
+    <span class="nav-cur">Tea with T</span>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-eye">Trilogy Internal · Newsletter</div>
+  <div class="hero-title">Tea with <span>T</span></div>
+  <div class="hero-sub">By Tanya Phillips · COO</div>
+  <div class="hero-rule"></div>
+  <div class="hero-desc">
+    A weekly note from Tanya — culture, updates, what's on, and a little something for the soul.
+  </div>
+</div>
+
+<!-- ARCHIVE -->
+<div class="container">
+  <div class="section-lbl">All Editions</div>
+  <div class="editions">
+
+    <!-- ─────────────────────────────────────────────────────────────
+         ADD NEW EDITIONS AT THE TOP OF THIS LIST
+         Copy one <a class="card"> block, update the href, date,
+         title, and preview text. That's it.
+    ───────────────────────────────────────────────────────────── -->
+
+    <a class="card" href="2026-06-09.html">
+      <div class="card-accent"></div>
+      <div class="card-body">
+        <div class="card-tag">Edition 01</div>
+        <div class="card-date">9 June 2026 <span class="latest-badge">Latest</span></div>
+        <div class="card-title">Tea with T — Issue 1</div>
+        <div class="card-preview">
+          Vibe check, The Village marketplace, Take Five &amp; Thrive, welcoming Harry Kitchen from CCP, and the HR portal coming soon.
+        </div>
+        <div class="card-cta">Read edition</div>
+      </div>
+      <div class="card-right"><div class="card-arrow">›</div></div>
+    </a>
+
+    <!-- Future editions go here -->
+
+  </div>
+</div>
+
+</body>
+</html>

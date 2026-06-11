@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tea with T | Trilogy</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background-color: #E6E6E6;
+    font-family: 'Montserrat', Arial, sans-serif;
+    color: #2a2a2a;
+  }
+  .email-wrapper {
+    max-width: 640px;
+    margin: 32px auto;
+    background: #ffffff;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  /* HEADER */
+  .header {
+    background: #515151;
+    padding: 40px 48px 32px;
+    position: relative;
+  }
+  .header-eyebrow {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    color: #4AFD0E;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .header-title {
+    font-size: 46px;
+    font-weight: 800;
+    color: #ffffff;
+    line-height: 1;
+    letter-spacing: -1px;
+  }
+  .header-title span {
+    color: #4AFD0E;
+  }
+  .header-subtitle {
+    font-size: 12px;
+    font-weight: 500;
+    color: #A5A5A5;
+    margin-top: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+  }
+  .header-rule {
+    width: 48px;
+    height: 3px;
+    background: #4AFD0E;
+    margin-top: 20px;
+    border-radius: 2px;
+  }
+
+  /* INTRO STRIP */
+  .intro-strip {
+    background: #f9f9f9;
+    border-left: 4px solid #4AFD0E;
+    padding: 20px 48px;
+  }
+  .intro-strip p {
+    font-size: 14px;
+    line-height: 1.8;
+    color: #515151;
+    font-weight: 400;
+  }
+  .intro-strip strong {
+    color: #515151;
+    font-weight: 700;
+  }
+
+  /* SECTION COMMON */
+  .section {
+    padding: 36px 48px;
+    border-bottom: 1px solid #E6E6E6;
+  }
+  .section:last-of-type {
+    border-bottom: none;
+  }
+  .section-tag {
+    display: inline-block;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: #4AFD0E;
+    background: #515151;
+    padding: 4px 10px;
+    border-radius: 2px;
+    margin-bottom: 10px;
+  }
+  .section-title {
+    font-size: 22px;
+    font-weight: 800;
+    color: #515151;
+    letter-spacing: -0.5px;
+    margin-bottom: 14px;
+    line-height: 1.2;
+  }
+  .section-body {
+    font-size: 14px;
+    line-height: 1.9;
+    color: #444444;
+  }
+  .section-body p {
+    margin-bottom: 12px;
+  }
+  .section-body p:last-child {
+    margin-bottom: 0;
+  }
+
+  /* VIBE CHECK — dark bg */
+  .section-vibecheck {
+    background: #515151;
+    padding: 36px 48px;
+    border-bottom: 3px solid #4AFD0E;
+  }
+  .section-vibecheck .section-tag {
+    background: #4AFD0E;
+    color: #515151;
+  }
+  .section-vibecheck .section-title {
+    color: #ffffff;
+    font-size: 24px;
+  }
+  .section-vibecheck .section-body {
+    color: #D0D0D0;
+  }
+  .vibe-emoji-row {
+    display: flex;
+    gap: 0;
+    margin: 18px 0 0;
+  }
+  .vibe-pill {
+    display: inline-block;
+    background: #3a3a3a;
+    border: 1px solid #4AFD0E;
+    color: #4AFD0E;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    padding: 6px 14px;
+    margin-right: 8px;
+    margin-bottom: 8px;
+    border-radius: 20px;
+    text-transform: uppercase;
+  }
+
+  /* CRAFTED EXCELLENCE — accent left rule */
+  .section-excellence {
+    background: #ffffff;
+    border-left: none;
+  }
+  .excellence-card {
+    background: #f4f4f4;
+    border-radius: 4px;
+    padding: 18px 20px;
+    margin-top: 18px;
+    border-left: 4px solid #4AFD0E;
+  }
+  .excellence-card-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: #515151;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .excellence-card-role {
+    font-size: 12px;
+    color: #A5A5A5;
+    margin-bottom: 8px;
+    font-weight: 500;
+  }
+  .excellence-card-quote {
+    font-size: 13px;
+    line-height: 1.75;
+    color: #555555;
+    font-style: italic;
+  }
+
+  /* THE VILLAGE */
+  .section-village {
+    background: #fafafa;
+  }
+  .village-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-top: 18px;
+  }
+  .village-item {
+    background: #ffffff;
+    border: 1px solid #E6E6E6;
+    border-radius: 4px;
+    padding: 16px;
+  }
+  .village-item-icon {
+    width: 32px;
+    height: 32px;
+    background: #515151;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+  }
+  .village-item-icon svg {
+    width: 16px;
+    height: 16px;
+    fill: #4AFD0E;
+  }
+  .village-item-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: #515151;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 6px;
+  }
+  .village-item-body {
+    font-size: 12px;
+    line-height: 1.7;
+    color: #666666;
+  }
+
+  /* TAKE FIVE */
+  .section-takefive {
+    background: #ffffff;
+  }
+  .takefive-list {
+    list-style: none;
+    margin-top: 18px;
+  }
+  .takefive-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 14px 0;
+    border-bottom: 1px solid #E6E6E6;
+    font-size: 13px;
+    line-height: 1.7;
+    color: #444444;
+  }
+  .takefive-list li:last-child {
+    border-bottom: none;
+  }
+  .takefive-num {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    background: #4AFD0E;
+    color: #515151;
+    font-size: 11px;
+    font-weight: 800;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 1px;
+  }
+
+  /* SPILLING THE TEA */
+  .section-tea {
+    background: #515151;
+  }
+  .section-tea .section-tag {
+    background: #4AFD0E;
+    color: #515151;
+  }
+  .section-tea .section-title {
+    color: #ffffff;
+  }
+  .section-tea .section-body {
+    color: #C8C8C8;
+  }
+  .tea-item {
+    border-left: 2px solid #4AFD0E;
+    padding-left: 16px;
+    margin-top: 20px;
+  }
+  .tea-item-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #4AFD0E;
+    margin-bottom: 4px;
+  }
+  .tea-item-text {
+    font-size: 13px;
+    line-height: 1.8;
+    color: #C8C8C8;
+  }
+
+  /* FOOTER */
+  .footer {
+    background: #2a2a2a;
+    padding: 28px 48px;
+    text-align: center;
+  }
+  .footer-logo {
+    font-size: 18px;
+    font-weight: 800;
+    color: #ffffff;
+    letter-spacing: -0.5px;
+    margin-bottom: 6px;
+  }
+  .footer-logo span {
+    color: #4AFD0E;
+  }
+  .footer-tagline {
+    font-size: 10px;
+    color: #A5A5A5;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .footer-links {
+    font-size: 11px;
+    color: #666666;
+  }
+  .footer-links a {
+    color: #A5A5A5;
+    text-decoration: none;
+  }
+  .footer-links a:hover {
+    color: #4AFD0E;
+  }
+  .footer-divider {
+    width: 32px;
+    height: 2px;
+    background: #4AFD0E;
+    margin: 14px auto;
+    border-radius: 1px;
+  }
+
+  @media (max-width: 640px) {
+    .email-wrapper { margin: 0; border-radius: 0; }
+    .header, .section, .intro-strip, .section-vibecheck,
+    .section-tea, .footer { padding-left: 24px; padding-right: 24px; }
+    .village-grid { grid-template-columns: 1fr; }
+    .header-title { font-size: 34px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Nav bar -->
+<div style="background:#1e1e1e;padding:0 24px;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100">
+  <div style="display:flex;align-items:center;gap:12px">
+    <a href="../" style="color:rgba(255,255,255,0.5);font-family:'Montserrat',sans-serif;font-size:11px;font-weight:600;text-decoration:none;letter-spacing:0.06em">← Portal</a>
+    <div style="width:1px;height:18px;background:rgba(255,255,255,0.15)"></div>
+    <a href="./" style="color:rgba(255,255,255,0.5);font-family:'Montserrat',sans-serif;font-size:11px;font-weight:600;text-decoration:none;letter-spacing:0.06em">Tea with T</a>
+    <div style="width:1px;height:18px;background:rgba(255,255,255,0.15)"></div>
+    <span style="color:rgba(255,255,255,0.9);font-family:'Montserrat',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.06em">9 June 2026</span>
+  </div>
+  <button onclick="copyLink()" id="copy-btn"
+    style="background:transparent;border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.7);
+           font-family:'Montserrat',sans-serif;font-size:11px;font-weight:600;padding:6px 14px;
+           border-radius:6px;cursor:pointer;letter-spacing:0.04em;transition:all 0.2s">
+    🔗 Copy link
+  </button>
+</div>
+<script>
+function copyLink(){
+  navigator.clipboard.writeText(window.location.href).then(function(){
+    var btn=document.getElementById('copy-btn');
+    btn.textContent='✓ Copied!';
+    btn.style.borderColor='#4AFD0E';
+    btn.style.color='#4AFD0E';
+    setTimeout(function(){btn.textContent='🔗 Copy link';btn.style.borderColor='rgba(255,255,255,0.2)';btn.style.color='rgba(255,255,255,0.7)';},2000);
+  });
+}
+</script>
+
+<div class="email-wrapper">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div style="display:flex; align-items:center; gap:20px; margin-bottom:22px;">
+      
+      <div>
+        <div class="header-eyebrow" style="margin-bottom:6px;">From the desk of Tanya</div>
+        <div class="header-title" style="font-size:38px;">Tea with <span>T</span></div>
+      </div>
+    </div>
+    <div class="header-subtitle">The Trilogy Internal Newsletter &nbsp;·&nbsp; Issue 02 · June 2025</div>
+    <div class="header-rule"></div>
+  </div>
+
+  <!-- INTRO -->
+  <div class="intro-strip">
+    <p>Hey Trilogy team 👋 Welcome to <strong>Tea with T</strong> — Issue 02.</p>
+    <p style="margin-top:12px;">June is <strong>Pride Month</strong> — and we are leading with that intentionally. At Trilogy, our DE&amp;I strategy is not a policy that lives in a drawer. It is integral to how we behave, deeply linked to our values, and alive in the way we show up for each other every single day.</p>
+    <p style="margin-top:12px;">We celebrate difference. We live in a country that boasts 11 official languages and a richness of cultures that is uniquely our own. That diversity is something we actively celebrate. We are committed to a space where everyone feels safe, respected and free to be exactly who they are — where choices anchored in love of self and others are celebrated.</p>
+    <p style="margin-top:12px;">This is our space. Let's connect, grow, thrive and belong. 🌈💚</p>
+  </div>
+
+  <!-- 1. VIBE CHECK -->
+  <div class="section-vibecheck">
+    <div class="section-tag">#01</div>
+    <div class="section-title">#vibecheck</div>
+    <div class="section-body">
+      <p>We are back for Issue 02 — and the vibe? Still strong. Last week we set the tone, and this week we are building on it.</p>
+      <p>A new home taking shape, partnerships announced, an EXCO formed. The energy is real — and your scores below reflect it.</p>
+      <p>As we grow, the one thing that must never change is <em>how</em> we grow. We remain focused on winning new business, delivering brilliantly for our existing clients, and telling the Trilogy story with pride. Building case studies, performing with excellence, and being the best brand ambassadors we can be — that is how we get to 100 FTE.</p>
+      <p>It all comes back to how we behave. We <strong style="color:#4AFD0E;">CRAFT</strong> our futures — not just as a tagline, but as a daily commitment.</p>
+    </div>
+
+    <div style="margin:22px 0 8px;">
+      <div style="font-size:10px; font-weight:700; letter-spacing:2.5px; text-transform:uppercase; color:#4AFD0E; margin-bottom:14px;">This is who we are</div>
+
+      <div style="display:flex; flex-direction:column; gap:10px;">
+        <div style="display:flex; align-items:flex-start; gap:14px;">
+          <div style="width:36px; height:36px; border-radius:4px; background:#4AFD0E; display:flex; align-items:center; justify-content:center; font-size:18px; font-weight:900; color:#515151; flex-shrink:0;">C</div>
+          <div style="padding-top:4px;"><strong style="color:#ffffff; font-size:13px;">Customer Obsession</strong><br><span style="color:#A5A5A5; font-size:12px; line-height:1.7;">Our clients are at the centre of everything. We anticipate their needs, exceed their expectations, and treat them as our only priority — because in that moment, they are.</span></div>
+        </div>
+        <div style="display:flex; align-items:flex-start; gap:14px;">
+          <div style="width:36px; height:36px; border-radius:4px; background:#4AFD0E; display:flex; align-items:center; justify-content:center; font-size:18px; font-weight:900; color:#515151; flex-shrink:0;">R</div>
+          <div style="padding-top:4px;"><strong style="color:#ffffff; font-size:13px;">Relentless Excellence</strong><br><span style="color:#A5A5A5; font-size:12px; line-height:1.7;">Good enough is never the goal. We deliver the best — consistently and without compromise.</span></div>
+        </div>
+        <div style="display:flex; align-items:flex-start; gap:14px;">
+          <div style="width:36px; height:36px; border-radius:4px; background:#4AFD0E; display:flex; align-items:center; justify-content:center; font-size:18px; font-weight:900; color:#515151; flex-shrink:0;">A</div>
+          <div style="padding-top:4px;"><strong style="color:#ffffff; font-size:13px;">And Collectiveness</strong><br><span style="color:#A5A5A5; font-size:12px; line-height:1.7;">We win together. There is no "my success" — only ours. We lift each other and build together.</span></div>
+        </div>
+        <div style="display:flex; align-items:flex-start; gap:14px;">
+          <div style="width:36px; height:36px; border-radius:4px; background:#4AFD0E; display:flex; align-items:center; justify-content:center; font-size:18px; font-weight:900; color:#515151; flex-shrink:0;">F</div>
+          <div style="padding-top:4px;"><strong style="color:#ffffff; font-size:13px;">Fun</strong><br><span style="color:#A5A5A5; font-size:12px; line-height:1.7;">We take our work seriously — but not ourselves. Joy and energy are part of who we are.</span></div>
+        </div>
+        <div style="display:flex; align-items:flex-start; gap:14px;">
+          <div style="width:36px; height:36px; border-radius:4px; background:#4AFD0E; display:flex; align-items:center; justify-content:center; font-size:18px; font-weight:900; color:#515151; flex-shrink:0;">T</div>
+          <div style="padding-top:4px;"><strong style="color:#ffffff; font-size:13px;">Trust</strong><br><span style="color:#A5A5A5; font-size:12px; line-height:1.7;">We do what we say. We show up. We are honest with each other, our clients, and ourselves. Trust is earned here and fiercely protected.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:22px; border-top:1px solid #3a3a3a; padding-top:16px;">
+      <p style="font-size:13px; color:#C8C8C8; line-height:1.9; margin:0 0 14px;">This week's vibe:</p>
+      <div>
+        <span class="vibe-pill">✔ Momentum growing</span>
+        <span class="vibe-pill">✔ Partnerships announced</span>
+        <span class="vibe-pill">✔ CRAFT in motion</span>
+      </div>
+    </div>
+
+    <div style="margin-top:20px; background:#3a3a3a; border-radius:4px; padding:18px 20px;">
+      <div style="font-size:10px; font-weight:700; letter-spacing:2.5px; text-transform:uppercase; color:#4AFD0E; margin-bottom:16px;">📊 This week's vibe scores</div>
+
+      <div style="display:flex; flex-direction:column; gap:10px;">
+        <div style="display:flex; align-items:center; gap:12px;">
+          <span style="font-size:18px;">😵‍💫</span>
+          <div style="width:80px; font-size:12px; color:#ffffff; font-weight:600; flex-shrink:0;">Unreal</div>
+          <div style="flex:1; background:#2a2a2a; border-radius:20px; height:10px; overflow:hidden;">
+            <div style="width:100%; height:100%; background:#4AFD0E; border-radius:20px;"></div>
+          </div>
+          <div style="width:20px; font-size:13px; font-weight:800; color:#4AFD0E; text-align:right;">5</div>
+        </div>
+        <div style="display:flex; align-items:center; gap:12px;">
+          <span style="font-size:18px;">😎</span>
+          <div style="width:80px; font-size:12px; color:#ffffff; font-weight:600; flex-shrink:0;">Vibing</div>
+          <div style="flex:1; background:#2a2a2a; border-radius:20px; height:10px; overflow:hidden;">
+            <div style="width:100%; height:100%; background:#4AFD0E; border-radius:20px;"></div>
+          </div>
+          <div style="width:20px; font-size:13px; font-weight:800; color:#4AFD0E; text-align:right;">5</div>
+        </div>
+        <div style="display:flex; align-items:center; gap:12px;">
+          <span style="font-size:18px;">🙂</span>
+          <div style="width:80px; font-size:12px; color:#ffffff; font-weight:600; flex-shrink:0;">Decent</div>
+          <div style="flex:1; background:#2a2a2a; border-radius:20px; height:10px; overflow:hidden;">
+            <div style="width:40%; height:100%; background:#f0a500; border-radius:20px;"></div>
+          </div>
+          <div style="width:20px; font-size:13px; font-weight:800; color:#f0a500; text-align:right;">2</div>
+        </div>
+        <div style="display:flex; align-items:center; gap:12px;">
+          <span style="font-size:18px;">😑</span>
+          <div style="width:80px; font-size:12px; color:#ffffff; font-weight:600; flex-shrink:0;">Meh</div>
+          <div style="flex:1; background:#2a2a2a; border-radius:20px; height:10px; overflow:hidden;">
+            <div style="width:0%; height:100%; background:#A5A5A5; border-radius:20px;"></div>
+          </div>
+          <div style="width:20px; font-size:13px; font-weight:800; color:#A5A5A5; text-align:right;">0</div>
+        </div>
+        <div style="display:flex; align-items:center; gap:12px;">
+          <span style="font-size:18px;">😮‍💨</span>
+          <div style="width:80px; font-size:12px; color:#ffffff; font-weight:600; flex-shrink:0;">Tough</div>
+          <div style="flex:1; background:#2a2a2a; border-radius:20px; height:10px; overflow:hidden;">
+            <div style="width:0%; height:100%; background:#A5A5A5; border-radius:20px;"></div>
+          </div>
+          <div style="width:20px; font-size:13px; font-weight:800; color:#A5A5A5; text-align:right;">0</div>
+        </div>
+      </div>
+
+      <div style="margin-top:20px; padding-top:16px; border-top:1px solid #515151;">
+        <div style="font-size:10px; font-weight:700; letter-spacing:2.5px; text-transform:uppercase; color:#4AFD0E; margin-bottom:14px;">📊 By Campaign</div>
+        <div style="display:flex; flex-direction:column; gap:12px;">
+          <div style="background:#2a2a2a; border-radius:4px; padding:12px 16px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+              <div><div style="font-size:13px; font-weight:700; color:#ffffff;">Support Team</div><div style="font-size:11px; color:#A5A5A5;">3 responses</div></div>
+              <div style="font-size:24px; font-weight:800; color:#4AFD0E;">4.7</div>
+            </div>
+            <div style="background:#3a3a3a; border-radius:20px; height:8px; overflow:hidden;">
+              <div style="width:94%; height:100%; background:#4AFD0E; border-radius:20px;"></div>
+            </div>
+          </div>
+          <div style="background:#2a2a2a; border-radius:4px; padding:12px 16px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+              <div><div style="font-size:13px; font-weight:700; color:#ffffff;">NADClinic</div><div style="font-size:11px; color:#A5A5A5;">3 responses</div></div>
+              <div style="font-size:24px; font-weight:800; color:#4AFD0E;">4.3</div>
+            </div>
+            <div style="background:#3a3a3a; border-radius:20px; height:8px; overflow:hidden;">
+              <div style="width:86%; height:100%; background:#4AFD0E; border-radius:20px;"></div>
+            </div>
+          </div>
+          <div style="background:#2a2a2a; border-radius:4px; padding:12px 16px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+              <div><div style="font-size:13px; font-weight:700; color:#ffffff;">Sales &amp; Marketing</div><div style="font-size:11px; color:#A5A5A5;">6 responses</div></div>
+              <div style="font-size:24px; font-weight:800; color:#4AFD0E;">4.0</div>
+            </div>
+            <div style="background:#3a3a3a; border-radius:20px; height:8px; overflow:hidden;">
+              <div style="width:80%; height:100%; background:#4AFD0E; border-radius:20px;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:16px; padding-top:14px; border-top:1px solid #515151; font-size:12px; color:#A5A5A5; line-height:1.8;">All green across the board — every team vibing 4.0 and above. That's the Trilogy standard. 💚</div>
+    </div>
+
+<!-- 5. SPILLING THE TEA -->
+  <div class="section section-tea">
+    <div class="section-tag">#02</div>
+    <div class="section-title">Spilling the Tea ☕</div>
+    <div class="section-body">
+      <p>Alright, here's the part where I get a little more real. What's on my mind, what's coming, and what I want you to know from me — directly.</p>
+    </div>
+
+    <div class="tea-item">
+      <div class="tea-item-label">🇿🇦 June 16 — Youth Day</div>
+      <div class="tea-item-text">June is <strong style="color:#ffffff;">Youth Month</strong> in South Africa — a time to honour the extraordinary courage of young people who stood up and changed the course of history. On June 16, 1976, thousands of students in Soweto took to the streets to protest against the apartheid government's imposition of Afrikaans as the language of instruction in Black schools. What followed was one of the most significant and painful turning points in our struggle for liberation.</div>
+      <div style="margin-top:12px; font-size:13px; color:#C8C8C8; line-height:1.9;">The Soweto Uprising galvanised a generation and drew the world's attention to the brutality of apartheid. After democracy was established in 1994, June was declared <strong style="color:#ffffff;">Youth Month</strong> and June 16 became <strong style="color:#ffffff;">National Youth Day</strong> — a permanent reminder that young people have the power to change the world.</div>
+      <div style="margin-top:12px; font-size:13px; color:#C8C8C8; line-height:1.9;">While many of the Trilogy team enjoy a day off, our <strong style="color:#ffffff;">NADClinic team</strong> will be at their desks, delivering for our client. That is not a small thing — it is a big thing, and it deserves to be said clearly: <strong style="color:#ffffff;">thank you.</strong> While the rest of South Africa pauses to honour this day, you are showing up, delivering, and representing Trilogy with everything you have. I see you. Leadership sees you. And we are incredibly grateful. 💚</div>
+    </div>
+
+    <div class="tea-item">
+      <div class="tea-item-label">🏛️ Introducing our EXCO</div>
+      <div class="tea-item-text">We have established our Executive Committee. Meet the team driving Trilogy's strategy, culture and growth.</div>
+      <div style="margin-top:16px; display:flex; flex-direction:column; gap:10px;">
+        <div style="display:flex; align-items:center; gap:14px; background:#3a3a3a; border-radius:4px; padding:12px 16px;">
+          <div style="width:38px; height:38px; border-radius:50%; background:#4AFD0E; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:800; color:#515151; flex-shrink:0;">K</div>
+          <div><div style="font-size:13px; font-weight:700; color:#ffffff;">Kobus van der Westhuizen</div></div>
+        </div>
+        <div style="display:flex; align-items:center; gap:14px; background:#3a3a3a; border-radius:4px; padding:12px 16px;">
+          <div style="width:38px; height:38px; border-radius:50%; background:#4AFD0E; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:800; color:#515151; flex-shrink:0;">T</div>
+          <div><div style="font-size:13px; font-weight:700; color:#ffffff;">Tanya Phillips</div></div>
+        </div>
+        <div style="display:flex; align-items:center; gap:14px; background:#3a3a3a; border-radius:4px; padding:12px 16px;">
+          <div style="width:38px; height:38px; border-radius:50%; background:#4AFD0E; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:800; color:#515151; flex-shrink:0;">V</div>
+          <div><div style="font-size:13px; font-weight:700; color:#ffffff;">Vancyon Van Zyl</div></div>
+        </div>
+        <div style="display:flex; align-items:center; gap:14px; background:#3a3a3a; border-radius:4px; padding:12px 16px;">
+          <div style="width:38px; height:38px; border-radius:50%; background:#4AFD0E; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:800; color:#515151; flex-shrink:0;">R</div>
+          <div><div style="font-size:13px; font-weight:700; color:#ffffff;">Rudi Jansen</div></div>
+        </div>
+        <div style="display:flex; align-items:center; gap:14px; background:#3a3a3a; border-radius:4px; padding:12px 16px;">
+          <div style="width:38px; height:38px; border-radius:50%; background:#4AFD0E; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:800; color:#515151; flex-shrink:0;">C</div>
+          <div><div style="font-size:13px; font-weight:700; color:#ffffff;">Craig Shalekoff</div></div>
+        </div>
+      </div>
+      <div style="margin-top:14px; font-size:13px; color:#C8C8C8; line-height:1.9;">EXCO meets regularly and I will share highlights and strategy right here. Transparency is how we lead. 💚</div>
+    </div>
+    <div class="tea-item">
+      <div class="tea-item-label">📈 Our growth strategy — where we're headed</div>
+      <div class="tea-item-text">Our goal is <strong style="color:#4AFD0E;">100 FTE this year</strong>. Three core focus areas:</div>
+      <div style="margin-top:14px; display:flex; flex-direction:column; gap:8px;">
+        <div style="display:flex; align-items:flex-start; gap:10px;">
+          <div style="width:24px; height:24px; border-radius:4px; background:#4AFD0E; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:800; color:#515151; flex-shrink:0;">1</div>
+          <span style="font-size:12px; color:#C8C8C8; line-height:1.7; padding-top:3px;"><strong style="color:#ffffff;">BPO Services</strong> — targeting the UK and South African markets</span>
+        </div>
+        <div style="display:flex; align-items:flex-start; gap:10px;">
+          <div style="width:24px; height:24px; border-radius:4px; background:#4AFD0E; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:800; color:#515151; flex-shrink:0;">2</div>
+          <span style="font-size:12px; color:#C8C8C8; line-height:1.7; padding-top:3px;"><strong style="color:#ffffff;">GCC Solutions</strong> — targeting the UK and USA markets</span>
+        </div>
+        <div style="display:flex; align-items:flex-start; gap:10px;">
+          <div style="width:24px; height:24px; border-radius:4px; background:#4AFD0E; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:800; color:#515151; flex-shrink:0;">3</div>
+          <span style="font-size:12px; color:#C8C8C8; line-height:1.7; padding-top:3px;"><strong style="color:#ffffff;">Technology</strong> — building our capability and stack</span>
+        </div>
+      </div>
+      <div style="margin-top:14px; font-size:13px; color:#C8C8C8; line-height:1.9;">To grow locally we are partnering with <strong style="color:#ffffff;">IQX</strong> — a SA digital integrator with 27 years of experience. We have UK partnerships supporting lead generation and sales, and we are maximising every marketing opportunity to ensure Trilogy is top of mind when companies consider outsourcing to South Africa.</div>
+    </div>
+
+
+    <div style="margin-top:18px; border-radius:8px; overflow:hidden;">
+      <div style="background:#515151; padding:16px 24px; display:flex; align-items:center; gap:12px;">
+        <div style="width:4px; height:32px; background:#4AFD0E; border-radius:2px; flex-shrink:0;"></div>
+        <div>
+          <div style="font-size:9px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:#4AFD0E;">Trilogy BPO</div>
+          <div style="font-size:16px; font-weight:800; color:#ffffff; letter-spacing:-0.5px;">Growth Strategy at a Glance</div>
+        </div>
+      </div>
+      <table style="width:100%; border-collapse:separate; border-spacing:2px; background:#515151;">
+        <tr>
+          <td style="background:#2a2a2a; padding:16px; vertical-align:top; width:30%;">
+            <div style="font-size:9px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:#4AFD0E; margin-bottom:12px; padding-bottom:8px; border-bottom:1px solid #3a3a3a;">What we do</div>
+            <table style="width:100%; border-collapse:collapse;">
+              <tr><td style="padding:6px 0; vertical-align:top;">
+                
+                <div style="overflow:hidden;"><div style="font-size:11px; font-weight:700; color:#ffffff;">BPO Services</div><div style="font-size:10px; color:#A5A5A5;">SA market · UK market</div></div>
+              </td></tr>
+              <tr><td style="padding:6px 0; vertical-align:top;">
+                
+                <div style="overflow:hidden;"><div style="font-size:11px; font-weight:700; color:#ffffff;">GCC Solutions</div><div style="font-size:10px; color:#A5A5A5;">UK market · USA market</div></div>
+              </td></tr>
+              <tr><td style="padding:6px 0; vertical-align:top;">
+                
+                <div style="overflow:hidden;"><div style="font-size:11px; font-weight:700; color:#ffffff;">Technology</div><div style="font-size:10px; color:#A5A5A5;">SA domestic</div></div>
+              </td></tr>
+            </table>
+          </td>
+          <td style="background:#2a2a2a; padding:16px; vertical-align:top; width:20%;">
+            <div style="font-size:9px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:#4AFD0E; margin-bottom:12px; padding-bottom:8px; border-bottom:1px solid #3a3a3a;">Target</div>
+            <div style="font-size:26px; font-weight:800; color:#4AFD0E; line-height:1;">100</div>
+            <div style="font-size:10px; color:#A5A5A5; margin-bottom:10px;">FTE by Dec 2026</div>
+  
+          </td>
+          
+          <td style="background:#2a2a2a; padding:16px; vertical-align:top; width:20%;">
+            <div style="font-size:9px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:#4AFD0E; margin-bottom:12px; padding-bottom:8px; border-bottom:1px solid #3a3a3a;">JV / SPV</div>
+            <table style="width:100%; border-collapse:collapse;">
+              <tr><td style="padding:5px 0; vertical-align:top;">
+                <div style="overflow:hidden;"><div style="font-size:11px; font-weight:700; color:#ffffff;">Trilogy Digital</div><div style="font-size:10px; color:#A5A5A5;">JV with CXG / DSG · 300 seat ambition</div></div>
+              </td></tr>
+            </table>
+          </td>
+          <td style="background:#2a2a2a; padding:16px; vertical-align:top; width:20%;">
+            <div style="font-size:9px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:#4AFD0E; margin-bottom:12px; padding-bottom:8px; border-bottom:1px solid #3a3a3a;">Associations</div>
+            <table style="width:100%; border-collapse:collapse;">
+              <tr><td style="padding:5px 0; vertical-align:top;">
+                <div style="overflow:hidden;"><div style="font-size:11px; font-weight:700; color:#ffffff;">BPESA</div><div style="font-size:10px; color:#A5A5A5;">SA BPO industry body</div></div>
+              </td></tr>
+              <tr><td style="padding:5px 0; vertical-align:top;">
+                <div style="overflow:hidden;"><div style="font-size:11px; font-weight:700; color:#ffffff;">CCMG</div><div style="font-size:10px; color:#A5A5A5;">Contact centre membership</div></div>
+              </td></tr>
+              <tr><td style="padding:5px 0; vertical-align:top;">
+                <div style="overflow:hidden;"><div style="font-size:11px; font-weight:700; color:#ffffff;">Cape BPO</div><div style="font-size:10px; color:#A5A5A5;">Regional Cape Town body</div></div>
+              </td></tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="tea-item">
+      <div class="tea-item-label">🤝 A landmark partnership — Trilogy Digital</div>
+      <div class="tea-item-text">We have concluded a partnership between <strong style="color:#ffffff;">DSG / CXG and TrilogyBPO</strong> — combining enterprise CX delivery with AI-powered BPO capability for global brands. Together, we are launching <strong style="color:#4AFD0E;">Trilogy Digital</strong> — a joint venture with an ambition to grow to <strong style="color:#4AFD0E;">300 seats over the next couple of years</strong>.</div>
+      <div style="margin-top:12px; font-size:13px; color:#C8C8C8; line-height:1.9;">DSG is South Africa's leading customer experience and technology group — seven specialist businesses delivering contact centre operations, marketing, telecoms, managed security and commerce solutions. CXG, a DSG company, is their specialist BPO and CX delivery arm with 27 years of expertise across telecoms, retail, entertainment and financial services, powered by the <strong style="color:#ffffff;">QContact UCaaS platform</strong> — which will become our communications tool.</div>
+      <div style="margin-top:12px; font-size:13px; color:#C8C8C8; line-height:1.9;">Trilogy Digital brings together two organisations that have spent decades at the sharp end of enterprise customer experience to create a truly digital-first experience. This partnership gives us access to specialist UCaaS resources, operational support, and best-in-class CX tools as we grow.</div>
+
+    </div>
+
+    <div style="margin-top:24px; background:#4AFD0E; border-radius:4px; padding:24px 28px; text-align:center;">
+      <div style="font-size:18px; font-weight:800; color:#515151; letter-spacing:-0.5px; margin-bottom:6px;">☕ Tea with T</div>
+      <div style="font-size:13px; color:#515151; line-height:1.8; margin-bottom:6px; font-weight:600;">Got a question or something on your mind?</div>
+      <div style="font-size:13px; color:#515151; line-height:1.9; margin-bottom:18px;">Ask me anything or book time for a conversation. No agenda needed.</div>
+      <a href="mailto:tanyap@trilogybpo.com?subject=Tea with T" style="display:inline-block; background:#515151; color:#4AFD0E; font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:2px; padding:12px 28px; border-radius:3px; text-decoration:none;">✉ tanyap@trilogybpo.com</a>
+    </div>
+  </div>
+
+  <!-- 2. CRAFTED EXCELLENCE -->
+  <div class="section section-excellence">
+    <div class="section-tag">#03</div>
+    <div class="section-title" style="color:#515151;">Crafted Excellence<br><span style="font-weight:400; font-size:15px; color:#A5A5A5;">Celebrating the great</span></div>
+    <div class="section-body">
+      <p>This section is all about shining a light on the people and moments that make Trilogy exceptional. Because excellence deserves to be named — loudly.</p>
+    </div>
+
+
+
+    
+
+
+
+    <div class="excellence-card" style="border-left-color:#A5A5A5;">
+      <div class="excellence-card-name" style="color:#A5A5A5;">[ Nominations welcome ]</div>
+      <div class="excellence-card-role">Know someone doing something great?</div>
+      <div class="excellence-card-quote">Send your nomination to nominations@trilogybpo.com and we'll celebrate them right here in the next issue. 💚</div>
+    </div>
+
+    <div style="background:#4AFD0E; border-radius:4px; padding:20px 24px; margin-top:24px; text-align:center;">
+      <div style="font-size:13px; font-weight:800; color:#515151; text-transform:uppercase; letter-spacing:1.5px; margin-bottom:8px;">👀 See someone doing something great?</div>
+      <div style="font-size:14px; color:#515151; line-height:1.8; margin-bottom:14px; font-weight:500;">Nominate them for the next issue of <em>Crafted Excellence</em>. Big wins, small moments, quiet heroes — they all count. Let's make recognition a habit at Trilogy.</div>
+      <a href="mailto:nominations@trilogybpo.com" style="display:inline-block; background:#515151; color:#4AFD0E; font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:2px; padding:12px 28px; border-radius:3px; text-decoration:none;">✉ Nominate Someone Now</a>
+    </div>
+  </div>
+
+  <!-- 3. THE VILLAGE -->
+  <div class="section section-village">
+    <div class="section-tag">#04</div>
+    <div class="section-title" style="color:#515151;">The Village</div>
+    <div class="section-body">
+      <p>They say it takes a village — and ours is something special. This section belongs to <strong>you</strong>.</p>
+      <p>The Village is our in-house community marketplace. Got a side hustle? Need a favour? Selling something? Looking for a lift? This is your space to connect, support each other, and show up for one another beyond the 9 to 5. Because that's what a real village does.</p>
+    </div>
+
+    <div style="background:#515151; border-radius:4px; padding:18px 22px; margin:18px 0;">
+      <div style="font-size:10px; font-weight:700; letter-spacing:2.5px; text-transform:uppercase; color:#4AFD0E; margin-bottom:10px;">How it works</div>
+      <div style="font-size:13px; color:#C8C8C8; line-height:1.9;">Send your listing, request or shout-out to <strong style="color:#4AFD0E;">marketplace@trilogybpo.com</strong> and we'll feature it right here in the next issue. No request too big, no hustle too small. 💚</div>
+    </div>
+
+
+
+    <div style="background:#ffffff; border:1px solid #E6E6E6; border-radius:4px; overflow:hidden; margin-top:18px;">
+      <div style="background:#515151; padding:12px 18px; display:flex; align-items:center; gap:10px;">
+        <div style="width:8px; height:8px; border-radius:50%; background:#4AFD0E;"></div>
+        <div style="font-size:10px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:#4AFD0E;">Side Hustles &amp; Causes 💫</div>
+      </div>
+      <div style="padding:18px 20px;">
+        <div style="font-size:15px; font-weight:800; color:#515151; margin-bottom:4px;">🏉 Support Devanno's Rugby Tour to Italy!</div>
+        <div style="font-size:12px; color:#A5A5A5; margin-bottom:12px; text-transform:uppercase; letter-spacing:1px; font-weight:600;">Posted by the team · Causes</div>
+        <div style="font-size:13px; color:#444; line-height:1.9; margin-bottom:14px;">We are raising funds to help our very own <strong>Devanno Jefthas</strong> participate in an exciting rugby tour to Italy 🇮🇹 Your support will help cover travel, accommodation, tour costs, and give him the opportunity to represent with pride and gain an unforgettable international experience.</div>
+
+        <div style="background:#f9f9f9; border-radius:4px; padding:14px 16px; margin-bottom:14px;">
+          <div style="font-size:10px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:#515151; margin-bottom:10px;">🎟️ Raffle Details</div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+            <div style="font-size:12px; color:#444; line-height:1.7;"><strong style="color:#515151;">Ticket Price</strong><br/>R100 per ticket</div>
+            <div style="font-size:12px; color:#444; line-height:1.7;"><strong style="color:#515151;">Draw Date</strong><br/>1st July 2026</div>
+            <div style="font-size:12px; color:#444; line-height:1.7;"><strong style="color:#515151;">Live Draw</strong><br/>Monise Jefthas's Facebook Page</div>
+            <div style="font-size:12px; color:#444; line-height:1.7;"><strong style="color:#515151;">Time</strong><br/>12:00 Midday</div>
+          </div>
+        </div>
+
+        <div style="background:#f9f9f9; border-radius:4px; padding:14px 16px; margin-bottom:14px;">
+          <div style="font-size:10px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:#515151; margin-bottom:10px;">🏆 Four Amazing Prizes to be Won!</div>
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            <div style="display:flex; gap:10px; align-items:flex-start;">
+              <div style="width:22px; height:22px; border-radius:50%; background:#515151; color:#4AFD0E; font-size:10px; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0;">1</div>
+              <div style="font-size:12px; color:#444; line-height:1.7;"><strong style="color:#515151;">Two-night stay at La Fontaine</strong> — for two guests including daily breakfast. Valid 1 Jul–1 Sep 2026.</div>
+            </div>
+            <div style="display:flex; gap:10px; align-items:flex-start;">
+              <div style="width:22px; height:22px; border-radius:50%; background:#515151; color:#4AFD0E; font-size:10px; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0;">2</div>
+              <div style="font-size:12px; color:#444; line-height:1.7;"><strong style="color:#515151;">One-night stay at La Roche Estate</strong> — for two guests including breakfast. Valid until 1 Jul 2027.</div>
+            </div>
+            <div style="display:flex; gap:10px; align-items:flex-start;">
+              <div style="width:22px; height:22px; border-radius:50%; background:#515151; color:#4AFD0E; font-size:10px; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0;">3</div>
+              <div style="font-size:12px; color:#444; line-height:1.7;"><strong style="color:#515151;">Glenwood Lunch &amp; Wine</strong> — R1000 lunch voucher, one case of Chardonnay 2026 &amp; one case of Shiraz Rosé 2026. Valid until 21 Nov 2026.</div>
+            </div>
+            <div style="display:flex; gap:10px; align-items:flex-start;">
+              <div style="width:22px; height:22px; border-radius:50%; background:#515151; color:#4AFD0E; font-size:10px; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0;">4</div>
+              <div style="font-size:12px; color:#444; line-height:1.7;"><strong style="color:#515151;">Haute Cabrière Lunch &amp; Wine</strong> — R1000 lunch voucher plus one case of wine. Valid until 1 Dec 2026.</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="background:#515151; border-radius:4px; padding:14px 16px;">
+          <div style="font-size:10px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:#4AFD0E; margin-bottom:8px;">How to Enter</div>
+          <div style="font-size:12px; color:#C8C8C8; line-height:1.8;">WhatsApp <strong style="color:#ffffff;">Monise on 068 367 3077</strong> to get your tickets. Send proof of payment once done — your ticket will be sent within 24 hours.</div>
+          <div style="margin-top:10px; font-size:11px; color:#A5A5A5; line-height:1.7;"><strong style="color:#ffffff;">Banking Details:</strong> MR Devanno Jefthas · Nedbank · Current Account · Acc: 1393251760 · Branch: 198765 · Reference: Your Name &amp; Surname</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:#f0f0f0; border-radius:4px; padding:16px 20px; margin-top:14px; text-align:center;">
+      <div style="font-size:12px; color:#515151; font-weight:700; text-transform:uppercase; letter-spacing:1.5px; margin-bottom:4px;">Want to post in The Village? 👐</div>
+      <div style="font-size:13px; color:#666; line-height:1.8;">Send your listing or request to <strong style="color:#515151;">marketplace@trilogybpo.com</strong> and we'll feature it in the next issue.</div>
+    </div>
+  </div>
+
+  <!-- 4. TAKE FIVE AND THRIVE -->
+  <div class="section section-takefive">
+    <div class="section-tag">#05</div>
+    <div class="section-title" style="color:#515151;">Take Five &amp; Thrive</div>
+    <div class="section-body">
+      <p>A reminder this week.</p>
+    </div>
+
+    <div style="border-left:4px solid #4AFD0E; padding:16px 20px; background:#f9f9f9; border-radius:0 4px 4px 0; margin-bottom:20px;">
+      <div style="font-size:13px; color:#444; line-height:1.9;">We care about the whole you — not just the version that shows up to work. If you're going through something hard — stress, change fatigue, personal challenges — don't carry it alone.</div>
+      <div style="margin-top:12px; display:flex; align-items:center; gap:14px; background:#515151; border-radius:4px; padding:14px 18px;">
+        <div style="width:44px; height:44px; border-radius:50%; background:#4AFD0E; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:16px; font-weight:800; color:#515151;">R</div>
+        <div>
+          <div style="font-size:13px; font-weight:700; color:#ffffff;">Rudi</div>
+          <div style="font-size:11px; color:#A5A5A5; margin-bottom:4px;">People Director</div>
+          <div style="font-size:12px; color:#C8C8C8; line-height:1.7;">Reach out to Rudi directly and in confidence. No judgement, just support.</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:#515151; border-radius:4px; padding:16px 20px; text-align:center;">
+      <div style="font-size:13px; color:#C8C8C8; line-height:1.9; font-style:italic;">Professional counselling services are coming — watch this space. You are not alone. 💚</div>
+    </div>
+  </div>
+
+  <!-- 6. HEADSUP -->
+  <div class="section" style="background:#fafafa;">
+    <div class="section-tag">#06</div>
+    <div class="section-title" style="color:#515151;">#headsup<br><span style="font-weight:400; font-size:15px; color:#A5A5A5;">Take Note</span></div>
+    <div class="section-body">
+      <p>Quick notes, important updates and things worth knowing this week.</p>
+    </div>
+
+    <div style="display:flex; flex-direction:column; gap:12px; margin-top:18px;">
+
+      <div style="background:#ffffff; border:1px solid #E6E6E6; border-left:4px solid #4AFD0E; border-radius:0 4px 4px 0; padding:14px 18px;">
+        <div style="font-size:10px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:#515151; margin-bottom:6px;">💐 Get well soon</div>
+        <div style="font-size:13px; color:#444; line-height:1.8;"><strong>Lizelle</strong> is on leave recovering from surgery. Rest up — we'll see you soon. 💚</div>
+      </div>
+
+
+
+      <div style="background:#ffffff; border:1px solid #E6E6E6; border-left:4px solid #515151; border-radius:0 4px 4px 0; padding:14px 18px;">
+        <div style="font-size:10px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:#515151; margin-bottom:6px;">🎂 June Birthdays</div>
+        <div style="font-size:13px; color:#A5A5A5; line-height:1.8; font-style:italic;">No June birthdays to celebrate this month — but if yours is coming up, make sure we know about it! 🎂</div>
+      </div>
+
+      <div style="background:#ffffff; border:1px solid #E6E6E6; border-left:4px solid #4AFD0E; border-radius:0 4px 4px 0; padding:14px 18px;">
+        <div style="font-size:10px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:#515151; margin-bottom:6px;">🇬🇧 Welcome Harry Kitchen — CCP</div>
+        <div style="font-size:13px; color:#444; line-height:1.9; margin-bottom:12px;">From <strong>14 June</strong>, we will be welcoming <strong>Harry Kitchen</strong> from the UK into our offices. Harry is part of the team at <strong>CCP — Contact Centre Panel</strong>, a specialist BPO and outsourcing advisory firm that has been connecting global clients with the right outsourced partners since 2015. They combine deep market knowledge with a methodical approach to understanding client needs — and they know this industry inside out. You can find out more at <a href="https://www.customercontactpanel.com" style="color:#515151; font-weight:700;">customercontactpanel.com</a>.</div>
+        <div style="font-size:13px; color:#444; line-height:1.9; margin-bottom:12px;">Harry has spent time with other BPO providers across SA including Durban — he knows the market and our competitors. Now he gets to see how we do things.</div>
+        <div style="background:#f9f9f9; border-radius:4px; padding:12px 16px; font-size:13px; color:#515151; line-height:1.8;">💚 <strong>Make Harry feel welcome.</strong> He is far from home and the warmth you show him will say more about Trilogy than any presentation. Just be yourselves.</div>
+      </div>
+
+      <div style="background:#ffffff; border:1px solid #E6E6E6; border-left:4px solid #4AFD0E; border-radius:0 4px 4px 0; padding:14px 18px;">
+        <div style="font-size:10px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:#515151; margin-bottom:6px;">⚙️ HR Portal — Coming Soon</div>
+        <div style="font-size:13px; color:#444; line-height:1.9;"><strong>Craig</strong> and <strong>Rudi</strong> have been hard at work automating our HR offer and onboarding processes, creating an HR portal and leave tracker, and building HR dashboards. Thank you for your support whilst testing. Rudi will share and demo everything when it is ready. Watch this space. 💚</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="footer-logo">tri<span>logy</span></div>
+    <div class="footer-tagline">ai enabled bpo · trilogybpo.com</div>
+    <div class="footer-divider"></div>
+    <div class="footer-links">
+      Tea with T is sent by T for the Trilogy team. &nbsp;|&nbsp;
+      <a href="#">Unsubscribe</a>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
