@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trilogy CRAFTI · Ask HR</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Wix+Madefor+Text:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://alcdn.msauth.net/browser/2.38.0/js/msal-browser.min.js" crossorigin="anonymous"></script>
+  <style>
+    :root {
+      --navy:#1e1e1e; --green:#4AFD0E; --green-light:#edffd6; --green-dark:#2a8a00;
+      --offwhite:#F7F6F2; --border:#e2e1dd; --surface:#fff; --bg:#e8e7e3;
+      --text:#1B2A4A; --text2:#4A5568; --text3:#7a8499;
+      --radius:8px; --radius-lg:12px; --radius-xl:16px; --red:#c0392b;
+    }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family:'Wix Madefor Text',sans-serif; background:var(--bg); color:var(--text); font-size:14px; }
+
+    /* NAV */
+    .nav { background:var(--navy); height:64px; display:flex; align-items:center; justify-content:space-between; padding:0 32px; position:sticky; top:0; z-index:100; }
+    .nav-left { display:flex; align-items:center; gap:12px; }
+    .nav-logo { height:28px; }
+    .nav-divider { width:1px; height:24px; background:rgba(255,255,255,0.15); }
+    .nav-section { color:rgba(255,255,255,0.65); font-family:'Montserrat',sans-serif; font-size:11px; font-weight:600; letter-spacing:0.09em; text-transform:uppercase; }
+    .nav-right { display:flex; align-items:center; gap:10px; }
+    .nav-back { color:rgba(255,255,255,0.5); font-family:'Montserrat',sans-serif; font-size:12px; font-weight:500; text-decoration:none; }
+    .nav-back:hover { color:var(--green); }
+    .nav-av { width:34px; height:34px; border-radius:50%; background:var(--green); color:var(--navy); font-family:'Montserrat',sans-serif; font-size:12px; font-weight:800; display:flex; align-items:center; justify-content:center; }
+    .admin-badge { background:rgba(192,57,43,0.2); color:#ff9a8d; font-family:'Montserrat',sans-serif; font-size:10px; font-weight:700; letter-spacing:0.07em; text-transform:uppercase; padding:3px 9px; border-radius:4px; }
+
+    /* LOGIN */
+    #login-screen { min-height:100vh; background:var(--navy); display:flex; align-items:center; justify-content:center; padding:20px; }
+    .login-box { background:#2a2a2a; border:1px solid rgba(255,255,255,0.07); border-radius:var(--radius-xl); padding:44px 40px; width:100%; max-width:440px; }
+    .login-mascot { text-align:center; font-size:44px; margin-bottom:10px; }
+    .login-title { color:#fff; font-family:'Montserrat',sans-serif; font-size:24px; font-weight:900; text-align:center; margin-bottom:4px; }
+    .login-title span { color:var(--green); }
+    .login-sub { color:rgba(255,255,255,0.38); font-size:13px; text-align:center; margin-bottom:30px; line-height:1.6; }
+    .btn-ms { display:flex; align-items:center; justify-content:center; gap:12px; width:100%; padding:14px; background:#fff; color:var(--text); border:none; border-radius:var(--radius); font-family:'Montserrat',sans-serif; font-size:14px; font-weight:700; cursor:pointer; transition:all 0.2s; }
+    .btn-ms:hover { background:#f0f4ff; }
+    .login-or { display:flex; align-items:center; gap:12px; margin:22px 0; }
+    .login-or::before, .login-or::after { content:''; flex:1; height:1px; background:rgba(255,255,255,0.1); }
+    .login-or span { color:rgba(255,255,255,0.3); font-family:'Montserrat',sans-serif; font-size:10px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; }
+    .admin-form { display:flex; flex-direction:column; gap:10px; }
+    .admin-input { height:42px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); border-radius:var(--radius); padding:0 14px; color:#fff; font-family:'Wix Madefor Text',sans-serif; font-size:13px; outline:none; }
+    .admin-input:focus { border-color:var(--green); }
+    .admin-input::placeholder { color:rgba(255,255,255,0.25); }
+    .btn-admin { padding:12px; background:transparent; border:1px solid rgba(255,255,255,0.2); color:rgba(255,255,255,0.7); border-radius:var(--radius); font-family:'Montserrat',sans-serif; font-size:12px; font-weight:700; letter-spacing:0.05em; cursor:pointer; transition:all 0.2s; }
+    .btn-admin:hover { border-color:var(--green); color:var(--green); }
+    .login-err { margin-top:12px; background:rgba(192,57,43,0.14); border:1px solid rgba(192,57,43,0.3); border-radius:var(--radius); padding:10px; color:#ffa0a0; font-size:13px; display:none; text-align:center; }
+
+    /* CHAT LAYOUT */
+    .chat-page { max-width:880px; margin:0 auto; padding:24px 20px 0; display:flex; flex-direction:column; height:calc(100vh - 64px); }
+    .chat-head { text-align:center; padding:14px 0 18px; }
+    .chat-mascot { font-size:38px; margin-bottom:6px; }
+    .chat-title { font-family:'Montserrat',sans-serif; font-size:22px; font-weight:900; }
+    .chat-title span { color:var(--green-dark); }
+    .chat-sub { color:var(--text3); font-size:13px; margin-top:4px; }
+
+    /* SCOPE TOGGLE */
+    .scope-bar { display:flex; align-items:center; justify-content:center; gap:10px; padding:10px 16px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); margin-bottom:16px; }
+    .scope-bar input[type=checkbox] { width:17px; height:17px; accent-color:var(--navy); cursor:pointer; }
+    .scope-label { font-size:13px; color:var(--text2); cursor:pointer; user-select:none; }
+    .scope-label strong { color:var(--text); }
+
+    /* MESSAGES */
+    .messages { flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:14px; padding-bottom:16px; }
+    .msg { max-width:85%; }
+    .msg-user { align-self:flex-end; }
+    .msg-user .msg-bubble { background:var(--navy); color:#fff; border-radius:var(--radius-lg) var(--radius-lg) 4px var(--radius-lg); padding:12px 16px; font-size:14px; line-height:1.6; }
+    .msg-bot { align-self:flex-start; max-width:92%; }
+    .msg-bot .msg-bubble { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg) var(--radius-lg) var(--radius-lg) 4px; padding:16px 18px; font-size:14px; line-height:1.7; }
+    .bot-section-label { font-family:'Montserrat',sans-serif; font-size:10px; font-weight:700; letter-spacing:0.09em; text-transform:uppercase; color:var(--green-dark); margin-bottom:6px; }
+    .bot-section-label.plain { color:#2980b9; margin-top:14px; padding-top:12px; border-top:1px solid var(--border); }
+    .bot-citation { margin-top:12px; padding:8px 12px; background:var(--offwhite); border-left:3px solid var(--green); border-radius:0 6px 6px 0; font-size:12px; color:var(--text2); }
+    .bot-citation strong { color:var(--text); }
+    .msg-source-tag { display:inline-block; font-family:'Montserrat',sans-serif; font-size:9px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; padding:2px 8px; border-radius:3px; margin-bottom:8px; }
+    .src-company { background:var(--green-light); color:var(--green-dark); }
+    .src-legislation { background:#dbeafe; color:#1e40af; }
+    .src-notfound { background:#fef3c7; color:#92400e; }
+    .typing { display:flex; gap:4px; padding:14px 18px; }
+    .typing span { width:7px; height:7px; border-radius:50%; background:var(--text3); animation:bounce 1.2s infinite; }
+    .typing span:nth-child(2) { animation-delay:0.15s; }
+    .typing span:nth-child(3) { animation-delay:0.3s; }
+    @keyframes bounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-6px)} }
+
+    /* INPUT BAR */
+    .input-bar { display:flex; gap:10px; padding:14px 0 22px; background:var(--bg); position:sticky; bottom:0; }
+    .chat-input { flex:1; height:50px; border:1px solid var(--border); border-radius:25px; padding:0 22px; font-family:'Wix Madefor Text',sans-serif; font-size:14px; outline:none; background:var(--surface); transition:border-color 0.15s; }
+    .chat-input:focus { border-color:var(--navy); }
+    .btn-send { width:50px; height:50px; border-radius:50%; background:var(--navy); color:var(--green); border:none; font-size:18px; cursor:pointer; transition:all 0.15s; flex-shrink:0; }
+    .btn-send:hover { background:#333; }
+    .btn-send:disabled { background:var(--border); color:var(--text3); cursor:not-allowed; }
+    .btn-end { height:50px; padding:0 18px; border-radius:25px; background:transparent; border:1px solid var(--border); color:var(--text3); font-family:'Montserrat',sans-serif; font-size:11px; font-weight:700; letter-spacing:0.05em; text-transform:uppercase; cursor:pointer; transition:all 0.15s; flex-shrink:0; }
+    .btn-end:hover { border-color:var(--red); color:var(--red); }
+
+    /* RATING MODAL */
+    .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.55); display:none; align-items:center; justify-content:center; z-index:500; padding:20px; }
+    .modal-overlay.open { display:flex; }
+    .rating-box { background:var(--surface); border-radius:var(--radius-xl); padding:36px 32px; width:100%; max-width:460px; text-align:center; }
+    .rating-title { font-family:'Montserrat',sans-serif; font-size:20px; font-weight:900; margin-bottom:6px; }
+    .rating-sub { color:var(--text3); font-size:13px; margin-bottom:26px; }
+    .smileys { display:flex; justify-content:center; gap:10px; margin-bottom:8px; }
+    .smiley { font-size:36px; cursor:pointer; padding:8px; border-radius:var(--radius-lg); border:2px solid transparent; transition:all 0.15s; filter:grayscale(0.6); }
+    .smiley:hover { filter:none; transform:scale(1.15); }
+    .smiley.selected { filter:none; border-color:var(--green-dark); background:var(--green-light); transform:scale(1.1); }
+    .smiley-name { font-family:'Montserrat',sans-serif; font-size:12px; font-weight:700; color:var(--green-dark); height:18px; margin-bottom:18px; }
+    .rating-comment { width:100%; min-height:70px; border:1px solid var(--border); border-radius:var(--radius); padding:10px 14px; font-family:'Wix Madefor Text',sans-serif; font-size:13px; resize:vertical; outline:none; margin-bottom:18px; }
+    .btn-submit-rating { width:100%; padding:13px; background:var(--green); color:var(--navy); border:none; border-radius:var(--radius); font-family:'Montserrat',sans-serif; font-size:13px; font-weight:800; cursor:pointer; }
+    .btn-submit-rating:disabled { background:var(--border); color:var(--text3); cursor:not-allowed; }
+    .btn-skip { background:none; border:none; color:var(--text3); font-size:12px; margin-top:12px; cursor:pointer; text-decoration:underline; }
+
+    /* ADMIN PANEL */
+    .admin-panel { max-width:680px; margin:0 auto; padding:32px 20px; }
+    .admin-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-xl); padding:28px; margin-bottom:20px; }
+    .admin-card-title { font-family:'Montserrat',sans-serif; font-size:14px; font-weight:800; margin-bottom:16px; display:flex; align-items:center; gap:8px; }
+    .form-label { font-family:'Montserrat',sans-serif; font-size:10px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:var(--text3); margin-bottom:5px; display:block; }
+    .form-input { width:100%; height:44px; border:1px solid var(--border); border-radius:var(--radius); padding:0 14px; font-family:'Wix Madefor Text',sans-serif; font-size:13px; outline:none; margin-bottom:14px; }
+    .form-input:focus { border-color:var(--navy); }
+    .btn-primary { padding:12px 24px; background:var(--navy); color:#fff; border:none; border-radius:var(--radius); font-family:'Montserrat',sans-serif; font-size:12px; font-weight:700; letter-spacing:0.05em; cursor:pointer; }
+    .btn-primary:hover { background:#333; }
+    .source-item { display:flex; align-items:center; gap:10px; padding:10px 0; border-bottom:1px solid var(--border); font-size:13px; }
+    .source-item:last-child { border-bottom:none; }
+    .source-icon { font-size:16px; }
+    .source-url { flex:1; color:var(--text2); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .save-ok { color:var(--green-dark); font-size:12px; font-weight:600; margin-left:10px; display:none; }
+
+    @media (max-width:640px) {
+      .nav { padding:0 14px; }
+      .chat-page { padding:16px 12px 0; }
+      .msg { max-width:94%; }
+      .smileys { gap:4px; }
+      .smiley { font-size:30px; padding:6px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-mascot">🤖</div>
+    <div class="login-title">Trilogy <span>CRAFTI</span></div>
+    <div class="login-sub">Ask HR anything — South African labour law,<br>company policy, leave, payroll and more.</div>
+    <button class="btn-ms" onclick="signIn()">
+      <svg width="20" height="20" viewBox="0 0 21 21" xmlns="http://www.w3.org/2000/svg">
+        <rect x="1" y="1" width="9" height="9" fill="#F35325"/>
+        <rect x="11" y="1" width="9" height="9" fill="#81BC06"/>
+        <rect x="1" y="11" width="9" height="9" fill="#05A6F0"/>
+        <rect x="11" y="11" width="9" height="9" fill="#FFBA08"/>
+      </svg>
+      Sign in with Microsoft
+    </button>
+    <div class="login-or"><span>Admin Access</span></div>
+    <div class="admin-form">
+      <input type="text" class="admin-input" id="adm-user" placeholder="Admin username" autocomplete="off">
+      <input type="password" class="admin-input" id="adm-pass" placeholder="Admin password" autocomplete="off">
+      <button class="btn-admin" onclick="adminLogin()">Admin Sign In</button>
+    </div>
+    <div class="login-err" id="login-err"></div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app" style="display:none">
+  <nav class="nav">
+    <div class="nav-left">
+      <img src="../trilogy-logo.png" alt="Trilogy" class="nav-logo">
+      <div class="nav-divider"></div>
+      <div class="nav-section">CRAFTI · Ask HR</div>
+    </div>
+    <div class="nav-right">
+      <a href="../" class="nav-back">← Portal</a>
+      <div class="nav-divider"></div>
+      <span class="admin-badge" id="admin-badge" style="display:none">Admin</span>
+      <div class="nav-av" id="nav-av">?</div>
+    </div>
+  </nav>
+
+  <!-- CHAT VIEW -->
+  <div class="chat-page" id="chat-view">
+    <div class="chat-head">
+      <div class="chat-mascot">🤖</div>
+      <div class="chat-title">Trilogy <span>CRAFTI</span></div>
+      <div class="chat-sub">Your HR assistant · Grounded in SA labour law &amp; Trilogy policy</div>
+    </div>
+
+    <div class="scope-bar">
+      <input type="checkbox" id="company-only">
+      <label for="company-only" class="scope-label">
+        <strong>Limit this to my company only</strong> — search Trilogy's policy documents first
+      </label>
+    </div>
+
+    <div class="messages" id="messages">
+      <div class="msg msg-bot">
+        <div class="msg-bubble">
+          👋 Hi! I'm <strong>CRAFTI</strong>, Trilogy's HR assistant. Ask me anything about leave,
+          working hours, payroll, dismissals, the BCEA, LRA, or any HR topic.
+          Tick the box above if your question is about <strong>Trilogy's own policies</strong>.
+        </div>
+      </div>
+    </div>
+
+    <div class="input-bar">
+      <input type="text" class="chat-input" id="chat-input" placeholder="Ask an HR question…"
+             onkeydown="if(event.key==='Enter')sendMessage()">
+      <button class="btn-send" id="btn-send" onclick="sendMessage()">➤</button>
+      <button class="btn-end" onclick="openRating()">End</button>
+    </div>
+  </div>
+
+  <!-- ADMIN VIEW -->
+  <div class="admin-panel" id="admin-view" style="display:none">
+    <div class="admin-card">
+      <div class="admin-card-title">📂 SharePoint Document Repository</div>
+      <label class="form-label">SharePoint site / library URL (company policy documents)</label>
+      <input type="text" class="form-input" id="sp-url" placeholder="https://trilogybpo.sharepoint.com/sites/HR/Shared%20Documents">
+      <button class="btn-primary" onclick="saveSource('sharepoint')">Save Repository</button>
+      <span class="save-ok" id="ok-sharepoint">✓ Saved</span>
+    </div>
+
+    <div class="admin-card">
+      <div class="admin-card-title">🌐 Legislation Sources (scraped weekly)</div>
+      <div class="source-item"><span class="source-icon">🏛️</span><span class="source-url">labour.gov.za — Department of Employment and Labour</span></div>
+      <div class="source-item"><span class="source-icon">📜</span><span class="source-url">gov.za/documents/acts — SA Government Gazettes &amp; Acts</span></div>
+      <div class="source-item"><span class="source-icon">⚖️</span><span class="source-url">saflii.org — SA Legal Information Institute (case law)</span></div>
+      <div class="source-item"><span class="source-icon">💼</span><span class="source-url">ccma.org.za — CCMA guidelines &amp; rules</span></div>
+      <div class="source-item"><span class="source-icon">📋</span><span class="source-url">sars.gov.za — PAYE / UIF / SDL employer guides</span></div>
+      <label class="form-label" style="margin-top:16px">Add another source URL</label>
+      <input type="text" class="form-input" id="new-source" placeholder="https://…">
+      <button class="btn-primary" onclick="saveSource('custom')">Add Source</button>
+      <span class="save-ok" id="ok-custom">✓ Added</span>
+    </div>
+
+    <div class="admin-card">
+      <div class="admin-card-title">💬 Go to Chat</div>
+      <button class="btn-primary" onclick="showChat()">Open CRAFTI Chat →</button>
+    </div>
+  </div>
+</div>
+
+<!-- RATING MODAL -->
+<div class="modal-overlay" id="rating-modal">
+  <div class="rating-box">
+    <div class="rating-title">How was CRAFTI today?</div>
+    <div class="rating-sub">Your feedback helps us brew a better bot ☕</div>
+    <div class="smileys" id="smileys">
+      <div class="smiley" data-score="1" data-name="Grumpy Gazette" onclick="pickSmiley(this)">😠</div>
+      <div class="smiley" data-score="2" data-name="Mild Misfile" onclick="pickSmiley(this)">🙁</div>
+      <div class="smiley" data-score="3" data-name="Neutral Notice" onclick="pickSmiley(this)">😐</div>
+      <div class="smiley" data-score="4" data-name="Happy Handbook" onclick="pickSmiley(this)">🙂</div>
+      <div class="smiley" data-score="5" data-name="Payday Euphoria" onclick="pickSmiley(this)">🤩</div>
+    </div>
+    <div class="smiley-name" id="smiley-name">&nbsp;</div>
+    <textarea class="rating-comment" id="rating-comment" placeholder="Anything else? (optional)"></textarea>
+    <button class="btn-submit-rating" id="btn-submit-rating" onclick="submitRating()" disabled>Submit Feedback</button>
+    <br><button class="btn-skip" onclick="closeRating()">Skip</button>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+// ─────────────────────────────────────────────────────────────────────
+//  CONFIG
+// ─────────────────────────────────────────────────────────────────────
+const CONFIG = {
+  azureClientId: '4b515ddf-72b9-43eb-b36b-82fc69296a7c',
+  azureTenantId: '77cde95f-930f-495e-89c6-4d2c30f6df21',
+  redirectUri:   'https://portal.trilogybpo.com',
+};
+
+// ⚠️ FILL THESE IN once you've created the Power Automate flows (see CRAFTI_SETUP.md)
+const FLOWS = {
+  CRAFTI_ASK:    'PASTE_CRAFTI_ASK_FLOW_URL_HERE',
+  CRAFTI_REVIEW: 'PASTE_CRAFTI_REVIEW_FLOW_URL_HERE',
+  CRAFTI_CONFIG: 'PASTE_CRAFTI_CONFIG_FLOW_URL_HERE',  // admin: save data sources
+};
+
+// Admin credentials (note: visible in page source — change periodically)
+const ADMIN_USER = 'hradmin';
+const ADMIN_PASS = 'YouAreNotWelcome';
+
+const SCOPES = ['User.Read'];
+
+// ─────────────────────────────────────────────────────────────────────
+//  STATE
+// ─────────────────────────────────────────────────────────────────────
+const S = {
+  userName:  null,
+  userEmail: null,
+  isAdmin:   false,
+  history:   [],   // [{role:'user'|'assistant', content:'...'}] for session memory
+  rating:    0,
+  ratingName:'',
+};
+
+// ─────────────────────────────────────────────────────────────────────
+//  AUTH
+// ─────────────────────────────────────────────────────────────────────
+let msalApp = null;
+if (window.msal) {
+  try {
+    msalApp = new msal.PublicClientApplication({
+      auth: { clientId:CONFIG.azureClientId, authority:'https://login.microsoftonline.com/'+CONFIG.azureTenantId, redirectUri:CONFIG.redirectUri },
+      cache:{ cacheLocation:'sessionStorage', storeAuthStateInCookie:true },
+    });
+  } catch(e) { console.error('MSAL:', e); }
+}
+
+async function init() {
+  if (!msalApp) return;
+  try {
+    const resp = await msalApp.handleRedirectPromise();
+    if (resp) { enterApp(resp.account.name, resp.account.username, false); return; }
+    const accounts = msalApp.getAllAccounts();
+    if (accounts.length) enterApp(accounts[0].name, accounts[0].username, false);
+  } catch(e) { console.error('Init:', e); }
+}
+
+function signIn() {
+  hideErr();
+  if (!msalApp) { showErr('Authentication unavailable — refresh the page.'); return; }
+  msalApp.loginRedirect({ scopes: SCOPES }).catch(e => showErr(e.message));
+}
+
+function adminLogin() {
+  hideErr();
+  const u = document.getElementById('adm-user').value.trim();
+  const p = document.getElementById('adm-pass').value;
+  if (u === ADMIN_USER && p === ADMIN_PASS) {
+    enterApp('HR Admin', 'hradmin@trilogybpo.com', true);
+  } else {
+    showErr('Invalid admin credentials.');
+  }
+}
+
+function enterApp(name, email, isAdmin) {
+  S.userName = name; S.userEmail = email; S.isAdmin = isAdmin;
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  document.getElementById('nav-av').textContent = (name||'?').split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+  if (isAdmin) {
+    document.getElementById('admin-badge').style.display = 'inline-block';
+    document.getElementById('chat-view').style.display = 'none';
+    document.getElementById('admin-view').style.display = 'block';
+  }
+}
+
+function showChat() {
+  document.getElementById('admin-view').style.display = 'none';
+  document.getElementById('chat-view').style.display = 'flex';
+}
+
+function showErr(m){ const e=document.getElementById('login-err'); e.textContent=m; e.style.display='block'; }
+function hideErr(){ document.getElementById('login-err').style.display='none'; }
+
+// ─────────────────────────────────────────────────────────────────────
+//  CHAT
+// ─────────────────────────────────────────────────────────────────────
+async function sendMessage() {
+  const input = document.getElementById('chat-input');
+  const q = input.value.trim();
+  if (!q) return;
+  input.value = '';
+
+  addUserMsg(q);
+  S.history.push({ role:'user', content:q });
+
+  const typing = addTyping();
+  document.getElementById('btn-send').disabled = true;
+
+  try {
+    if (FLOWS.CRAFTI_ASK.startsWith('PASTE_')) {
+      throw new Error('CRAFTI_ASK flow URL not configured yet. See CRAFTI_SETUP.md.');
+    }
+    const companyOnly = document.getElementById('company-only').checked;
+    const r = await fetch(FLOWS.CRAFTI_ASK, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        question:     q,
+        company_only: companyOnly ? 'true' : 'false',
+        history:      JSON.stringify(S.history.slice(-10)),   // last 10 turns for session memory
+        user_email:   S.userEmail || '',
+      }),
+    });
+    if (!r.ok) throw new Error('CRAFTI flow returned ' + r.status);
+    const text = await r.text();
+    let d = {};
+    try { d = JSON.parse(text); } catch(e) {}
+    d = d.body ? (typeof d.body === 'string' ? JSON.parse(d.body) : d.body) : d;
+
+    typing.remove();
+    addBotMsg({
+      source:    d.source    || (companyOnly ? 'company' : 'legislation'),
+      formal:    d.formal    || d.answer || 'No answer returned — check the CRAFTI_ASK flow output.',
+      plain:     d.plain     || '',
+      citation:  d.citation  || '',
+      notFound:  d.not_found === 'true' || d.not_found === true,
+    });
+    S.history.push({ role:'assistant', content: (d.formal || d.answer || '') });
+  } catch(e) {
+    typing.remove();
+    addBotMsg({
+      source:'error',
+      formal:'⚠️ ' + e.message,
+      plain:'CRAFTI couldn\'t reach the HR knowledge base. Please try again, or contact HR directly if it persists.',
+      citation:'',
+    });
+  }
+  document.getElementById('btn-send').disabled = false;
+  scrollDown();
+}
+
+function addUserMsg(text) {
+  const div = document.createElement('div');
+  div.className = 'msg msg-user';
+  div.innerHTML = '<div class="msg-bubble"></div>';
+  div.querySelector('.msg-bubble').textContent = text;
+  document.getElementById('messages').appendChild(div);
+  scrollDown();
+}
+
+function addTyping() {
+  const div = document.createElement('div');
+  div.className = 'msg msg-bot';
+  div.innerHTML = '<div class="msg-bubble typing"><span></span><span></span><span></span></div>';
+  document.getElementById('messages').appendChild(div);
+  scrollDown();
+  return div;
+}
+
+function addBotMsg(o) {
+  const div = document.createElement('div');
+  div.className = 'msg msg-bot';
+
+  let tag = '';
+  if (o.notFound)                 tag = '<span class="msg-source-tag src-notfound">Company doc not found — answering from legislation</span>';
+  else if (o.source==='company')  tag = '<span class="msg-source-tag src-company">📂 Trilogy Policy</span>';
+  else if (o.source==='legislation') tag = '<span class="msg-source-tag src-legislation">⚖️ SA Legislation</span>';
+
+  let html = '<div class="msg-bubble">' + tag;
+  if (o.notFound) {
+    html += '<div style="margin-bottom:10px;font-size:13px;color:#92400e">Your company does not have this information in its policy repository. Here\'s the answer from current SA labour legislation:</div>';
+  }
+  html += '<div class="bot-section-label">Answer</div><div>' + escapeHTML(o.formal).replace(/\n/g,'<br>') + '</div>';
+  if (o.plain) {
+    html += '<div class="bot-section-label plain">In Plain English</div><div>' + escapeHTML(o.plain).replace(/\n/g,'<br>') + '</div>';
+  }
+  if (o.citation) {
+    html += '<div class="bot-citation"><strong>📌 Source:</strong> ' + escapeHTML(o.citation) + '</div>';
+  }
+  html += '</div>';
+  div.innerHTML = html;
+  document.getElementById('messages').appendChild(div);
+  scrollDown();
+}
+
+function escapeHTML(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function scrollDown() {
+  const m = document.getElementById('messages');
+  m.scrollTop = m.scrollHeight;
+}
+
+// ─────────────────────────────────────────────────────────────────────
+//  RATING
+// ─────────────────────────────────────────────────────────────────────
+function openRating() { document.getElementById('rating-modal').classList.add('open'); }
+function closeRating() { document.getElementById('rating-modal').classList.remove('open'); }
+
+function pickSmiley(el) {
+  document.querySelectorAll('.smiley').forEach(s => s.classList.remove('selected'));
+  el.classList.add('selected');
+  S.rating     = parseInt(el.dataset.score);
+  S.ratingName = el.dataset.name;
+  document.getElementById('smiley-name').textContent = el.dataset.name;
+  document.getElementById('btn-submit-rating').disabled = false;
+}
+
+async function submitRating() {
+  const btn = document.getElementById('btn-submit-rating');
+  btn.disabled = true; btn.textContent = 'Sending…';
+  try {
+    if (!FLOWS.CRAFTI_REVIEW.startsWith('PASTE_')) {
+      await fetch(FLOWS.CRAFTI_REVIEW, {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({
+          score:       String(S.rating),
+          score_name:  S.ratingName,
+          comment:     document.getElementById('rating-comment').value.trim(),
+          user_email:  S.userEmail || '',
+          session_len: String(S.history.length),
+        }),
+      });
+    }
+  } catch(e) { console.warn('Rating save failed:', e); }
+  btn.textContent = '✓ Thank you!';
+  setTimeout(() => { closeRating(); window.location.href = '../'; }, 1200);
+}
+
+// ─────────────────────────────────────────────────────────────────────
+//  ADMIN — SAVE DATA SOURCES
+// ─────────────────────────────────────────────────────────────────────
+async function saveSource(kind) {
+  const val = kind === 'sharepoint'
+    ? document.getElementById('sp-url').value.trim()
+    : document.getElementById('new-source').value.trim();
+  if (!val) { alert('Please enter a URL.'); return; }
+
+  try {
+    if (FLOWS.CRAFTI_CONFIG.startsWith('PASTE_')) {
+      throw new Error('CRAFTI_CONFIG flow not set up yet — see CRAFTI_SETUP.md');
+    }
+    await fetch(FLOWS.CRAFTI_CONFIG, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ source_type:kind, source_url:val, added_by:'hradmin' }),
+    });
+    const ok = document.getElementById('ok-' + kind);
+    ok.style.display = 'inline';
+    setTimeout(() => ok.style.display = 'none', 2500);
+    if (kind === 'custom') document.getElementById('new-source').value = '';
+  } catch(e) { alert(e.message); }
+}
+
+window.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
