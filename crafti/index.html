@@ -386,9 +386,8 @@ async function sendMessage() {
     });
     if (!r.ok) throw new Error('CRAFTI flow returned ' + r.status);
     const text = await r.text();
-    let d = {};
-    try { d = JSON.parse(text); } catch(e) {}
-    d = d.body ? (typeof d.body === 'string' ? JSON.parse(d.body) : d.body) : d;
+    console.log('CRAFTI raw response:', text);
+    let d = parseAnswer(text);
 
     typing.remove();
     addBotMsg({
@@ -458,6 +457,32 @@ function addBotMsg(o) {
 
 function escapeHTML(s) {
   return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+/** Robustly extract CRAFTI's JSON answer from whatever the flow returns:
+    handles markdown fences, double-encoded strings, PA body-wrapping, and
+    Anthropic's raw API shape (content[0].text). */
+function parseAnswer(text) {
+  if (!text || !text.trim()) return {};
+  let v = text.trim();
+
+  for (let i = 0; i < 4; i++) {                // up to 4 unwrap passes
+    if (typeof v === 'string') {
+      const clean = v.replace(/```json/gi, '').replace(/```/g, '').trim();
+      // pull out the first {...} block if there's surrounding chatter
+      const start = clean.indexOf('{');
+      const end   = clean.lastIndexOf('}');
+      const candidate = (start !== -1 && end > start) ? clean.slice(start, end + 1) : clean;
+      try { v = JSON.parse(candidate); } catch(e) { return {}; }
+    } else if (v && typeof v === 'object') {
+      if (typeof v.body === 'string')      { v = v.body; continue; }
+      if (v.body && typeof v.body === 'object') { v = v.body; continue; }
+      if (v.content && v.content[0] && v.content[0].text) { v = v.content[0].text; continue; } // raw Anthropic shape
+      if (v.formal || v.answer) return v;   // found it
+      return v;                              // some other object — return as-is
+    }
+  }
+  return (v && typeof v === 'object') ? v : {};
 }
 
 function scrollDown() {
