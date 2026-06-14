@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <meta name="format-detection" content="telephone=no">
   <title>Trilogy CRAFTI · Ask HR</title>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Wix+Madefor+Text:wght@400;500;600&display=swap" rel="stylesheet">
   <script src="https://alcdn.msauth.net/browser/2.38.0/js/msal-browser.min.js" crossorigin="anonymous"></script>
@@ -41,7 +42,7 @@
     .login-or::before, .login-or::after { content:''; flex:1; height:1px; background:rgba(255,255,255,0.1); }
     .login-or span { color:rgba(255,255,255,0.3); font-family:'Montserrat',sans-serif; font-size:10px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; }
     .admin-form { display:flex; flex-direction:column; gap:10px; }
-    .admin-input { height:42px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); border-radius:var(--radius); padding:0 14px; color:#fff; font-family:'Wix Madefor Text',sans-serif; font-size:13px; outline:none; }
+    .admin-input { height:46px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); border-radius:var(--radius); padding:0 14px; color:#fff; font-family:'Wix Madefor Text',sans-serif; font-size:16px; outline:none; }
     .admin-input:focus { border-color:var(--green); }
     .admin-input::placeholder { color:rgba(255,255,255,0.25); }
     .btn-admin { padding:12px; background:transparent; border:1px solid rgba(255,255,255,0.2); color:rgba(255,255,255,0.7); border-radius:var(--radius); font-family:'Montserrat',sans-serif; font-size:12px; font-weight:700; letter-spacing:0.05em; cursor:pointer; transition:all 0.2s; }
@@ -85,7 +86,7 @@
 
     /* INPUT BAR */
     .input-bar { display:flex; gap:10px; padding:14px 0 22px; background:var(--bg); position:sticky; bottom:0; }
-    .chat-input { flex:1; height:50px; border:1px solid var(--border); border-radius:25px; padding:0 22px; font-family:'Wix Madefor Text',sans-serif; font-size:14px; outline:none; background:var(--surface); transition:border-color 0.15s; }
+    .chat-input { flex:1; height:50px; border:1px solid var(--border); border-radius:25px; padding:0 22px; font-family:'Wix Madefor Text',sans-serif; font-size:16px; outline:none; background:var(--surface); transition:border-color 0.15s; }
     .chat-input:focus { border-color:var(--navy); }
     .btn-send { width:50px; height:50px; border-radius:50%; background:var(--navy); color:var(--green); border:none; font-size:18px; cursor:pointer; transition:all 0.15s; flex-shrink:0; }
     .btn-send:hover { background:#333; }
@@ -104,7 +105,7 @@
     .smiley:hover { filter:none; transform:scale(1.15); }
     .smiley.selected { filter:none; border-color:var(--green-dark); background:var(--green-light); transform:scale(1.1); }
     .smiley-name { font-family:'Montserrat',sans-serif; font-size:12px; font-weight:700; color:var(--green-dark); height:18px; margin-bottom:18px; }
-    .rating-comment { width:100%; min-height:70px; border:1px solid var(--border); border-radius:var(--radius); padding:10px 14px; font-family:'Wix Madefor Text',sans-serif; font-size:13px; resize:vertical; outline:none; margin-bottom:18px; }
+    .rating-comment { width:100%; min-height:70px; border:1px solid var(--border); border-radius:var(--radius); padding:10px 14px; font-family:'Wix Madefor Text',sans-serif; font-size:16px; resize:vertical; outline:none; margin-bottom:18px; }
     .btn-submit-rating { width:100%; padding:13px; background:var(--green); color:var(--navy); border:none; border-radius:var(--radius); font-family:'Montserrat',sans-serif; font-size:13px; font-weight:800; cursor:pointer; }
     .btn-submit-rating:disabled { background:var(--border); color:var(--text3); cursor:not-allowed; }
     .btn-skip { background:none; border:none; color:var(--text3); font-size:12px; margin-top:12px; cursor:pointer; text-decoration:underline; }
@@ -171,6 +172,8 @@
     <div class="nav-right">
       <a href="../" class="nav-back">← Portal</a>
       <div class="nav-divider"></div>
+      <a href="#" class="nav-back" id="admin-switch" onclick="switchToAdmin(event)">Admin login</a>
+      <div class="nav-divider" id="admin-switch-div"></div>
       <span class="admin-badge" id="admin-badge" style="display:none">Admin</span>
       <div class="nav-av" id="nav-av">?</div>
     </div>
@@ -344,7 +347,30 @@ function enterApp(name, email, isAdmin) {
     document.getElementById('admin-badge').style.display = 'inline-block';
     document.getElementById('chat-view').style.display = 'none';
     document.getElementById('admin-view').style.display = 'block';
+    // Already admin — hide the switch link
+    document.getElementById('admin-switch').style.display = 'none';
+    document.getElementById('admin-switch-div').style.display = 'none';
   }
+}
+
+// Return to the login screen so admin credentials can be entered.
+// Clears the cached MSAL account so the user picker / admin form shows.
+function switchToAdmin(e) {
+  if (e) e.preventDefault();
+  try {
+    if (msalApp) {
+      const accounts = msalApp.getAllAccounts();
+      accounts.forEach(a => {
+        try { msalApp.getTokenCache && msalApp.getTokenCache().removeAccount && msalApp.getTokenCache().removeAccount(a); } catch(_) {}
+      });
+    }
+    sessionStorage.clear();
+  } catch(_) {}
+  // Show login screen, focus the admin username field
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+  const u = document.getElementById('adm-user');
+  if (u) setTimeout(() => u.focus(), 100);
 }
 
 function showChat() {
