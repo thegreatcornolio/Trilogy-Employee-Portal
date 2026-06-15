@@ -1388,10 +1388,19 @@ async function approveLeaveFromPortal(idx, status) {
 
   try {
     await flow(FLOWS.APPROVE_LEAVE, {
-      employee_id: String(emp.EmployeeID),
-      start_date:  r.StartDate || r.start_date,
-      status:      status,
-      approved_by: S.employee.FirstName + ' ' + S.employee.LastName,
+      employee_id:    String(emp.EmployeeID),
+      start_date:     r.StartDate || r.start_date,
+      status:         status,
+      approved_by:    S.employee.FirstName + ' ' + S.employee.LastName,
+      // Full details so the Rudi processing email needs no SQL lookup
+      employee_name:  (emp.FirstName + ' ' + emp.LastName),
+      employee_email: emp.WorkEmail || emp.PersonalEmail || '',
+      campaign:       emp.Campaign || '',
+      job_title:      emp.JobTitle || '',
+      leave_type:     r.LeaveType || r.leave_type || '',
+      end_date:       r.EndDate || r.end_date || '',
+      days:           String(r.Days || r.days || ''),
+      reason:         r.Reason || r.reason || '',
     });
     // Remove from pending list and re-render
     S.teamPendingLeave.splice(idx, 1);
