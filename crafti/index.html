@@ -58,10 +58,7 @@
     .chat-sub { color:var(--text3); font-size:13px; margin-top:4px; }
 
     /* SCOPE TOGGLE */
-    .scope-bar { display:flex; align-items:center; justify-content:center; gap:10px; padding:10px 16px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); margin-bottom:16px; }
-    .scope-bar input[type=checkbox] { width:17px; height:17px; accent-color:var(--navy); cursor:pointer; }
-    .scope-label { font-size:13px; color:var(--text2); cursor:pointer; user-select:none; }
-    .scope-label strong { color:var(--text); }
+    /* SCOPE TOGGLE removed — CRAFTI always searches record/policy then legislation */
 
     /* MESSAGES */
     .messages { flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:14px; padding-bottom:16px; }
@@ -187,19 +184,13 @@
       <div class="chat-sub">Your HR assistant · Grounded in SA labour law &amp; Trilogy policy</div>
     </div>
 
-    <div class="scope-bar">
-      <input type="checkbox" id="company-only">
-      <label for="company-only" class="scope-label">
-        <strong>Limit this to my company only</strong> — search Trilogy's policy documents first
-      </label>
-    </div>
-
     <div class="messages" id="messages">
       <div class="msg msg-bot">
         <div class="msg-bubble">
-          👋 Hi! I'm <strong>CRAFTI</strong>, Trilogy's HR assistant. Ask me anything about leave,
-          working hours, payroll, dismissals, the BCEA, LRA, or any HR topic.
-          Tick the box above if your question is about <strong>Trilogy's own policies</strong>.
+          👋 Hi! I'm <strong>CRAFTI</strong>, Trilogy's HR assistant. Ask me anything —
+          your own leave balance, who your manager is, your start date, or general HR
+          topics like the BCEA, working hours, dismissals and more. I check your Trilogy
+          record and policies first, then South African labour law.
         </div>
       </div>
     </div>
@@ -400,12 +391,11 @@ async function sendMessage() {
     if (FLOWS.CRAFTI_ASK.startsWith('PASTE_')) {
       throw new Error('CRAFTI_ASK flow URL not configured yet. See CRAFTI_SETUP.md.');
     }
-    const companyOnly = document.getElementById('company-only').checked;
     const r = await fetch(FLOWS.CRAFTI_ASK, {
       method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({
         question:     q,
-        company_only: companyOnly ? 'true' : 'false',
+        company_only: 'true',   // always search company docs first, then legislation
         history:      JSON.stringify(S.history.slice(-10)),   // last 10 turns for session memory
         user_email:   S.userEmail || '',
       }),
@@ -417,7 +407,7 @@ async function sendMessage() {
 
     typing.remove();
     addBotMsg({
-      source:    d.source    || (companyOnly ? 'company' : 'legislation'),
+      source:    d.source    || 'legislation',
       formal:    d.formal    || d.answer || 'No answer returned — check the CRAFTI_ASK flow output.',
       plain:     d.plain     || '',
       citation:  d.citation  || '',
