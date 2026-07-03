@@ -301,6 +301,13 @@
     .a-ico { font-size: 15px; flex-shrink: 0; margin-top: 2px; }
     .a-title { font-family: 'Montserrat', sans-serif; font-size: 12px; font-weight: 700; margin-bottom: 2px; }
     .a-body  { font-size: 12px; color: var(--text2); line-height: 1.45; }
+    .a-actions { display: flex; gap: 6px; margin-top: 8px; }
+    .a-btn { padding: 5px 12px; border-radius: 6px; font-size: 11px; font-weight: 700; font-family: 'Montserrat', sans-serif; cursor: pointer; border: none; transition: all .15s; }
+    .a-btn:disabled { opacity: .5; cursor: not-allowed; }
+    .a-approve { background: #2a8a00; color: #fff; }
+    .a-approve:hover:not(:disabled) { background: #4AFD0E; color: #111; }
+    .a-reject { background: transparent; border: 1px solid #c0392b; color: #c0392b; }
+    .a-reject:hover:not(:disabled) { background: #c0392b; color: #fff; }
     .no-alerts {
       display: flex; flex-direction: column; align-items: center;
       justify-content: center; padding: 28px 16px; color: var(--text3); text-align: center;
@@ -683,6 +690,8 @@ const CONFIG = {
 const FLOWS = {
   GET_EMPLOYEES: 'https://default77cde95f930f495e89c64d2c30f6df.21.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/845f7381bca24e189eb44725203089dd/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=QrjlEFKXktx5JYxWNb8LgUJAxi8TGzHqLjXh0RriG0U',
   GET_DETAIL:    'https://default77cde95f930f495e89c64d2c30f6df.21.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/6b82b43d3cc048efb566f7ff40093ad8/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=iqilALe0lU6amkgr8t_Y-zIIUjaefCz2qgeQjEeys9c',
+  GET_LEAVE_RECORDS:'https://default77cde95f930f495e89c64d2c30f6df.21.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/3998c9c42b8f473995fabf9c9f9c7102/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=E2JBILmdXEcO33-MirhSylDi6S5TAi96ghbGknVSzA0',
+  APPROVE_LEAVE: 'https://default77cde95f930f495e89c64d2c30f6df.21.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/3531e6f78a34492882d7ec3b5c878cf2/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=DBkS3MssGKGwq37wcBoXEKphGUgVuM_D5zReB4JkDFE',
   // ── Noticeboard flows ──
   SAVE_NOTICE:   'https://default77cde95f930f495e89c64d2c30f6df.21.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/f12e732e55e14aa8983d174731870ae2/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=2llxYPjdD16T1EunNdi3msuXEbXPxwptsDATr7IzBIk',
   GET_NOTICES:   'https://default77cde95f930f495e89c64d2c30f6df.21.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/ebc09296aee244e9870adcb340991d2e/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=G1BKjVJTHNdMYYr-vrpTaYV3u5b3FRvkpcjiZ0TlLIk',
@@ -890,6 +899,7 @@ async function loadDashboard(account) {
     renderAll();
     loadNotices().then(function(){ renderNoticeboard(); });
     loadTeamLeaveAsync();
+    loadPendingLeaveAlerts();
   } catch(err) {
     console.error('loadDashboard:', err);
     showScreen('login-screen');
@@ -1005,16 +1015,100 @@ function renderTeam() {
   document.getElementById('team-body').innerHTML=rows+more+manageBtn;
 }
 
+// ── PENDING LEAVE ALERTS ──
+// 1) My own pending requests  2) (managers) direct reports' pending requests with inline approve
+async function loadPendingLeaveAlerts() {
+  const pend = x => ((x.Status||x.status||'').toLowerCase()==='pending');
+  // My pending requests
+  try {
+    const res = await flow(FLOWS.GET_LEAVE_RECORDS, { employee_id: S.employee.EmployeeID });
+    const recs = Array.isArray(res) ? res : (res.records || res.value || []);
+    S.myPending = recs.filter(pend);
+  } catch { S.myPending = []; }
+  renderAlerts(S.leaveCache || leaveCalc(S.employee, S.detail));
+
+  // Direct reports' pending (include self-managed edge case: ReportsTo === my own name)
+  const myFullName = S.employee.FullName || (S.employee.FirstName+' '+S.employee.LastName);
+  const approvees = S.allEmployees.filter(e => (e.ReportsTo||'') === myFullName && e.Status === 'Active');
+  if (!approvees.length) { S.teamPending = []; return; }
+  const results = await Promise.allSettled(approvees.map(r => flow(FLOWS.GET_LEAVE_RECORDS, { employee_id: r.EmployeeID })));
+  const tp = [];
+  results.forEach((res,i) => {
+    if (res.status !== 'fulfilled') return;
+    const recs = Array.isArray(res.value) ? res.value : (res.value.records || res.value.value || []);
+    recs.filter(pend).forEach(rec => tp.push({ emp: approvees[i], rec }));
+  });
+  S.teamPending = tp;
+  renderAlerts(S.leaveCache || leaveCalc(S.employee, S.detail));
+}
+
+async function portalDecideLeave(idx, decision) {
+  const tp = (S.teamPending||[])[idx];
+  if (!tp) return;
+  document.querySelectorAll('[data-tp="'+idx+'"]').forEach(b => b.disabled = true);
+  const r = tp.emp, lr = tp.rec;
+  const id = lr.LeaveID || lr.leave_id || lr.id || '';
+  try {
+    await flow(FLOWS.APPROVE_LEAVE, {
+      leave_id: String(id),
+      status: decision,
+      approved_by: S.employee.FullName || (S.employee.FirstName+' '+S.employee.LastName),
+      employee_id: r.EmployeeID,
+      employee_name: r.FirstName+' '+r.LastName,
+      employee_email: r.WorkEmail || r.PersonalEmail || '',
+      campaign: r.Campaign || '',
+      job_title: r.JobTitle || '',
+      leave_type: lr.LeaveType || lr.leave_type || '',
+      start_date: lr.StartDate || lr.start_date || '',
+      end_date: lr.EndDate || lr.end_date || '',
+      days: String(lr.Days || lr.days || ''),
+      reason: lr.Reason || lr.reason || '',
+    });
+    S.teamPending.splice(idx, 1);
+    // If it was my own request (self-managed), refresh my pending too
+    if (r.EmployeeID === S.employee.EmployeeID) {
+      S.myPending = (S.myPending||[]).filter(x => String(x.LeaveID||x.leave_id||x.id||'') !== String(id));
+    }
+    renderAlerts(S.leaveCache || leaveCalc(S.employee, S.detail));
+  } catch (e) {
+    alert('Could not '+decision.toLowerCase()+' this request: '+(e.message||e));
+    document.querySelectorAll('[data-tp="'+idx+'"]').forEach(b => b.disabled = false);
+  }
+}
+
 function renderAlerts(leave) {
+  S.leaveCache = leave;
   const d=S.detail,e=S.employee,alerts=[];
   const disc=d.active_disciplinary||0;
   if (disc>0) alerts.push({type:'danger',icon:'⚠️',title:`${disc} Active Disciplinary Record${disc>1?'s':''}`,body:'Contact your line manager or HR for details.'});
   if (leave.annual.remaining<5) alerts.push({type:'warn',icon:'🌴',title:`Low Annual Leave: ${leave.annual.remaining} day${leave.annual.remaining!==1?'s':''} remaining`,body:"You're running low on annual leave for this cycle."});
   if (e.OnboardingComplete===false||e.OnboardingComplete===0||e.OnboardingComplete==='0') alerts.push({type:'info',icon:'📋',title:'Onboarding Incomplete',body:'You have outstanding onboarding steps. Contact HR.'});
+
+  // My pending leave requests
+  (S.myPending||[]).forEach(lr=>{
+    const type=lr.LeaveType||lr.leave_type||'Leave';
+    const sd=lr.StartDate||lr.start_date, ed=lr.EndDate||lr.end_date;
+    const days=lr.Days||lr.days||'';
+    alerts.push({type:'info',icon:'⏳',title:`Leave request pending: ${type}${days?' · '+days+' day'+(days!=1?'s':''):''}`,
+      body:`${fmtDate(sd)} → ${fmtDate(ed)} · awaiting approval${e.ReportsTo?' from '+e.ReportsTo:''}`});
+  });
+
+  // Manager: direct reports' pending requests — inline approve/reject
+  (S.teamPending||[]).forEach((tp,idx)=>{
+    const lr=tp.rec, r=tp.emp;
+    const type=lr.LeaveType||lr.leave_type||'Leave';
+    const sd=lr.StartDate||lr.start_date, ed=lr.EndDate||lr.end_date;
+    const days=lr.Days||lr.days||'';
+    alerts.push({type:'warn',icon:'🌴',title:`${r.FirstName} ${r.LastName} requested ${type}${days?' · '+days+' day'+(days!=1?'s':''):''}`,
+      body:`${fmtDate(sd)} → ${fmtDate(ed)}${(lr.Reason||lr.reason)?' · '+String(lr.Reason||lr.reason).replace(/</g,'&lt;'):''}`,
+      actions:`<button class="a-btn a-approve" data-tp="${idx}" onclick="portalDecideLeave(${idx},'Approved')">✓ Approve</button>`+
+              `<button class="a-btn a-reject" data-tp="${idx}" onclick="portalDecideLeave(${idx},'Rejected')">✗ Reject</button>`});
+  });
+
   document.getElementById('alerts-badge').textContent=alerts.length;
   document.getElementById('alerts-badge').className='badge '+(alerts.length?'badge-red':'badge-grey');
   document.getElementById('alerts-body').innerHTML=alerts.length
-    ? alerts.map(a=>`<div class="alert alert-${a.type}"><div class="a-ico">${a.icon}</div><div><div class="a-title">${a.title}</div><div class="a-body">${a.body}</div></div></div>`).join('')
+    ? alerts.map(a=>`<div class="alert alert-${a.type}"><div class="a-ico">${a.icon}</div><div style="flex:1"><div class="a-title">${a.title}</div><div class="a-body">${a.body}</div>${a.actions?`<div class="a-actions">${a.actions}</div>`:''}</div></div>`).join('')
     : `<div class="no-alerts"><div class="no-alerts-ico">✅</div><div class="no-alerts-txt">All clear — no alerts right now.</div></div>`;
 }
 

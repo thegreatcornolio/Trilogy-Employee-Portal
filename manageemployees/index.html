@@ -205,7 +205,7 @@ function toggleCard(i){ document.getElementById('card-'+i).classList.toggle('ope
 async function loadPending(r){
   try{
     var res=await flow(FLOWS.GET_LEAVE_RECORDS,{ employee_id:r.EmployeeID });
-    var recs=Array.isArray(res)?res:(res.records||res.value||[]);
+    var recs=Array.isArray(res)?res:(res.records||res.value||(res.ResultSets&&res.ResultSets.Table1)||(res.resultsets&&res.resultsets.Table1)||[]);
     r._leave=recs;
     var pending=recs.filter(function(x){return (x.Status||x.status||'').toLowerCase()==='pending';});
     r._pending=pending;
