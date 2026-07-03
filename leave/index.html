@@ -1,1060 +1,803 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Trilogy · Apply for Leave</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Wix+Madefor+Text:wght@400;500;600&display=swap" rel="stylesheet">
-  <script src="https://alcdn.msauth.net/browser/2.38.0/js/msal-browser.min.js" crossorigin="anonymous"></script>
-  <style>
-    /* ── Design system — matches portal ─────────────────────────────── */
-    :root {
-      --navy:       #1e1e1e;
-      --green:      #4AFD0E;
-      --green-light:#edffd6;
-      --green-dark: #2a8a00;
-      --offwhite:   #F7F6F2;
-      --border:     #e2e1dd;
-      --surface:    #fff;
-      --bg:         #e8e7e3;
-      --text:       #1B2A4A;
-      --text2:      #4A5568;
-      --text3:      #7a8499;
-      --radius:     8px;
-      --radius-lg:  12px;
-      --radius-xl:  16px;
-      --red:        #c0392b;
-      --orange:     #e67e22;
-    }
-    *, *::before, *::after { box-sizing: border-box; }
-    html { overflow-x: hidden; scroll-behavior: smooth; }
-    body { font-family: 'Wix Madefor Text', sans-serif; background: var(--bg); color: var(--text); font-size: 14px; margin: 0; }
-
-    /* ── Nav ─────────────────────────────────────────────────────────── */
-    .nav { background: var(--navy); height: 64px; display: flex; align-items: center; justify-content: space-between; padding: 0 32px; position: sticky; top: 0; z-index: 100; }
-    .nav-left { display: flex; align-items: center; gap: 12px; }
-    .nav-logo { height: 28px; }
-    .nav-divider { width: 1px; height: 24px; background: rgba(255,255,255,0.15); }
-    .nav-section { color: rgba(255,255,255,0.65); font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 0.09em; text-transform: uppercase; }
-    .nav-back { color: rgba(255,255,255,0.5); font-family: 'Montserrat', sans-serif; font-size: 12px; font-weight: 500; text-decoration: none; display: flex; align-items: center; gap: 6px; transition: color 0.2s; }
-    .nav-back:hover { color: var(--green); }
-    .nav-user { display: flex; align-items: center; gap: 10px; }
-    .nav-av { width: 34px; height: 34px; border-radius: 50%; background: var(--green); color: var(--navy); font-family: 'Montserrat', sans-serif; font-size: 12px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-    .nav-name { color: rgba(255,255,255,0.8); font-family: 'Montserrat', sans-serif; font-size: 12px; font-weight: 600; }
-
-    /* ── Page layout ─────────────────────────────────────────────────── */
-    .page { max-width: 1100px; margin: 0 auto; padding: 32px 32px 64px; }
-    .page-head { margin-bottom: 28px; }
-    .page-title { font-family: 'Montserrat', sans-serif; font-size: 26px; font-weight: 900; color: var(--text); margin-bottom: 4px; }
-    .page-sub { color: var(--text3); font-size: 14px; }
-    .layout { display: grid; grid-template-columns: 300px 1fr; gap: 24px; align-items: start; }
-
-    /* ── Balance sidebar ─────────────────────────────────────────────── */
-    .balance-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-xl); overflow: hidden; position: sticky; top: 84px; }
-    .balance-head { background: var(--navy); padding: 16px 20px; }
-    .balance-head-title { color: var(--green); font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 2px; }
-    .balance-head-name { color: #fff; font-family: 'Montserrat', sans-serif; font-size: 15px; font-weight: 800; }
-    .balance-body { padding: 16px 20px; }
-    .bal-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); }
-    .bal-row:last-child { border-bottom: none; }
-    .bal-icon { font-size: 20px; flex-shrink: 0; }
-    .bal-name { font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 600; color: var(--text2); margin-bottom: 2px; }
-    .bal-nums { font-family: 'Montserrat', sans-serif; font-size: 18px; font-weight: 800; color: var(--text); line-height: 1; }
-    .bal-nums span { font-size: 11px; font-weight: 500; color: var(--text3); }
-    .bal-bar { height: 4px; background: var(--bg); border-radius: 2px; overflow: hidden; margin-top: 4px; }
-    .bal-fill { height: 100%; border-radius: 2px; transition: width 0.6s ease; }
-    .fil-g { background: var(--green); }
-    .fil-b { background: #3b82f6; }
-    .fil-o { background: #f59e0b; }
-    .fil-p { background: #a855f7; }
-    .bal-selected { background: var(--green-light); border-color: var(--green-dark) !important; }
-    .bal-row.depleted .bal-nums { color: var(--red); }
-
-    /* ── Manager preview ─────────────────────────────────────────────── */
-    .mgr-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-xl); padding: 16px 20px; margin-top: 14px; }
-    .mgr-label { font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text3); margin-bottom: 10px; }
-    .mgr-info { display: flex; align-items: center; gap: 10px; }
-    .mgr-av { width: 38px; height: 38px; border-radius: 50%; background: var(--navy); color: #fff; font-family: 'Montserrat', sans-serif; font-size: 13px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-    .mgr-name { font-weight: 600; font-size: 14px; margin-bottom: 1px; }
-    .mgr-role { font-size: 12px; color: var(--text3); }
-    .approval-note { margin-top: 10px; padding: 8px 10px; background: #fef3c7; border-radius: var(--radius); font-size: 12px; color: #78350f; line-height: 1.5; }
-
-    /* ── Wizard card ─────────────────────────────────────────────────── */
-    .wizard-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-xl); overflow: hidden; }
-
-    /* ── Step indicator ─────────────────────────────────────────────── */
-    .steps { display: flex; background: var(--offwhite); border-bottom: 1px solid var(--border); padding: 0; }
-    .step-item { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 16px 8px; gap: 6px; position: relative; }
-    .step-item::after { content:''; position: absolute; right: 0; top: 50%; transform: translateY(-50%); height: 1px; width: 50%; background: var(--border); z-index: 0; }
-    .step-item:last-child::after { display: none; }
-    .step-num { width: 28px; height: 28px; border-radius: 50%; background: var(--bg); border: 2px solid var(--border); color: var(--text3); font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 800; display: flex; align-items: center; justify-content: center; position: relative; z-index: 1; transition: all 0.2s; }
-    .step-lbl { font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text3); transition: color 0.2s; }
-    .step-item.active .step-num { background: var(--navy); border-color: var(--navy); color: #fff; }
-    .step-item.active .step-lbl { color: var(--text); }
-    .step-item.done .step-num { background: var(--green); border-color: var(--green-dark); color: var(--navy); }
-    .step-item.done .step-lbl { color: var(--green-dark); }
-
-    /* ── Step content ─────────────────────────────────────────────────── */
-    .step-body { padding: 32px; }
-    .step-heading { font-family: 'Montserrat', sans-serif; font-size: 18px; font-weight: 800; color: var(--text); margin-bottom: 6px; }
-    .step-sub { color: var(--text3); font-size: 13px; margin-bottom: 28px; line-height: 1.6; }
-
-    /* ── Type selector ─────────────────────────────────────────────────── */
-    .type-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
-    .type-card { border: 2px solid var(--border); border-radius: var(--radius-xl); padding: 20px 16px; cursor: pointer; transition: all 0.18s; text-align: center; background: var(--surface); }
-    .type-card:hover { border-color: var(--navy); }
-    .type-card.selected { border-color: var(--green-dark); background: var(--green-light); }
-    .type-icon { font-size: 32px; margin-bottom: 10px; }
-    .type-name { font-family: 'Montserrat', sans-serif; font-size: 13px; font-weight: 800; color: var(--text); margin-bottom: 4px; }
-    .type-remain { font-family: 'Montserrat', sans-serif; font-size: 20px; font-weight: 900; margin-bottom: 2px; }
-    .type-remain.ok { color: var(--green-dark); }
-    .type-remain.warn { color: var(--orange); }
-    .type-remain.bad { color: var(--red); }
-    .type-entitle { font-size: 11px; color: var(--text3); }
-    .type-card.selected .type-name { color: var(--green-dark); }
-
-    /* ── Date step ─────────────────────────────────────────────────────── */
-    .date-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
-    .form-group { display: flex; flex-direction: column; gap: 6px; }
-    .form-label { font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text2); }
-    .form-input { height: 44px; border: 1px solid var(--border); border-radius: var(--radius); padding: 0 14px; font-family: 'Wix Madefor Text', sans-serif; font-size: 14px; color: var(--text); background: var(--surface); transition: border-color 0.15s; outline: none; }
-    .form-input:focus { border-color: var(--navy); }
-    .form-input.error { border-color: var(--red); }
-    .days-badge { background: var(--navy); color: #fff; border-radius: var(--radius-lg); padding: 20px 24px; text-align: center; margin-bottom: 16px; }
-    .days-num { font-family: 'Montserrat', sans-serif; font-size: 40px; font-weight: 900; color: var(--green); line-height: 1; }
-    .days-label { font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255,255,255,0.5); margin-top: 4px; }
-    .days-note { font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 4px; }
-    .date-warning { padding: 10px 14px; border-radius: var(--radius); font-size: 13px; margin-bottom: 12px; display: none; }
-    .warn-orange { background: #fef3c7; color: #78350f; border: 1px solid #fcd34d; }
-    .warn-red { background: #fee2e2; color: #7f1d1d; border: 1px solid #fca5a5; }
-    .warn-green { background: var(--green-light); color: var(--green-dark); border: 1px solid var(--green); }
-
-    /* ── Details step ─────────────────────────────────────────────────── */
-    .form-textarea { width: 100%; min-height: 100px; border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 14px; font-family: 'Wix Madefor Text', sans-serif; font-size: 14px; color: var(--text); resize: vertical; outline: none; transition: border-color 0.15s; margin-bottom: 20px; }
-    .form-textarea:focus { border-color: var(--navy); }
-
-    .upload-zone { border: 2px dashed var(--border); border-radius: var(--radius-lg); padding: 32px 20px; text-align: center; cursor: pointer; transition: all 0.2s; background: var(--offwhite); }
-    .upload-zone:hover, .upload-zone.drag { border-color: var(--navy); background: var(--green-light); }
-    .upload-zone.has-file { border-color: var(--green-dark); background: var(--green-light); border-style: solid; }
-    .upload-icon { font-size: 32px; margin-bottom: 8px; }
-    .upload-title { font-family: 'Montserrat', sans-serif; font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
-    .upload-sub { font-size: 12px; color: var(--text3); }
-    .upload-input { display: none; }
-    .file-preview { display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: var(--surface); border: 1px solid var(--green-dark); border-radius: var(--radius); }
-    .file-icon { font-size: 24px; }
-    .file-name { font-weight: 600; font-size: 13px; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .file-size { font-size: 11px; color: var(--text3); }
-    .file-remove { cursor: pointer; color: var(--text3); font-size: 16px; padding: 4px; border-radius: 4px; transition: all 0.15s; }
-    .file-remove:hover { color: var(--red); background: #fee2e2; }
-    .doc-required { font-size: 12px; color: var(--orange); font-style: italic; margin-top: 8px; }
-
-    /* ── Review step ────────────────────────────────────────────────────── */
-    .review-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 20px; }
-    .review-item { padding: 14px 18px; border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); }
-    .review-item:nth-child(2n) { border-right: none; }
-    .review-item:nth-last-child(-n+2) { border-bottom: none; }
-    .review-key { font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text3); margin-bottom: 4px; }
-    .review-val { font-size: 14px; font-weight: 600; color: var(--text); }
-    .review-impact { background: var(--navy); color: #fff; border-radius: var(--radius-lg); padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
-    .impact-item { text-align: center; }
-    .impact-num { font-family: 'Montserrat', sans-serif; font-size: 24px; font-weight: 900; line-height: 1; }
-    .impact-label { font-size: 10px; font-family: 'Montserrat', sans-serif; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-top: 3px; }
-    .impact-arrow { color: rgba(255,255,255,0.3); font-size: 20px; }
-    .ack-row { display: flex; align-items: flex-start; gap: 10px; padding: 14px 16px; background: var(--offwhite); border-radius: var(--radius); margin-bottom: 20px; cursor: pointer; }
-    .ack-row input[type=checkbox] { width: 16px; height: 16px; margin-top: 1px; accent-color: var(--navy); cursor: pointer; flex-shrink: 0; }
-    .ack-text { font-size: 13px; color: var(--text2); line-height: 1.6; }
-
-    /* ── Wizard nav buttons ─────────────────────────────────────────────── */
-    .wizard-footer { display: flex; align-items: center; justify-content: space-between; padding: 20px 32px; border-top: 1px solid var(--border); background: var(--offwhite); }
-    .btn { font-family: 'Montserrat', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 0.06em; padding: 11px 24px; border-radius: var(--radius); cursor: pointer; border: none; transition: all 0.18s; }
-    .btn-primary { background: var(--navy); color: #fff; }
-    .btn-primary:hover { background: #333; }
-    .btn-primary:disabled { background: var(--border); color: var(--text3); cursor: not-allowed; }
-    .btn-ghost { background: transparent; color: var(--text2); border: 1px solid var(--border); }
-    .btn-ghost:hover { background: var(--bg); }
-    .btn-submit { background: var(--green); color: var(--navy); font-size: 13px; padding: 13px 32px; }
-    .btn-submit:hover { background: #5fff20; }
-    .btn-submit:disabled { background: var(--border); color: var(--text3); cursor: not-allowed; }
-
-    /* ── Success screen ─────────────────────────────────────────────────── */
-    .success-screen { padding: 48px 32px; text-align: center; }
-    .success-icon { font-size: 56px; margin-bottom: 16px; }
-    .success-title { font-family: 'Montserrat', sans-serif; font-size: 22px; font-weight: 900; color: var(--text); margin-bottom: 8px; }
-    .success-sub { color: var(--text3); font-size: 14px; line-height: 1.7; margin-bottom: 28px; max-width: 440px; margin-left: auto; margin-right: auto; }
-    .success-summary { background: var(--offwhite); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px 24px; text-align: left; max-width: 440px; margin: 0 auto 28px; }
-    .ss-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
-    .ss-row:last-child { border-bottom: none; }
-    .ss-key { color: var(--text3); }
-    .ss-val { font-weight: 600; color: var(--text); }
-    .success-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
-
-    /* ── Validation error ───────────────────────────────────────────────── */
-    .field-err { font-size: 12px; color: var(--red); margin-top: 4px; display: none; }
-    .field-err.show { display: block; }
-
-    /* ── Loading / login screens ───────────────────────────────────────── */
-    #login-screen { min-height: 100vh; background: var(--navy); display: flex; align-items: center; justify-content: center; padding: 20px; }
-    .login-box { background: #2a2a2a; border: 1px solid rgba(255,255,255,0.07); border-radius: var(--radius-xl); padding: 48px 40px; width: 100%; max-width: 420px; text-align: center; }
-    .login-logo { height: 34px; margin-bottom: 32px; }
-    .login-title { color: #fff; font-family: 'Montserrat', sans-serif; font-size: 22px; font-weight: 800; margin-bottom: 8px; }
-    .login-sub { color: rgba(255,255,255,0.38); font-size: 14px; margin-bottom: 36px; }
-    .btn-ms { display: flex; align-items: center; justify-content: center; gap: 12px; width: 100%; padding: 14px; background: #fff; color: var(--text); border: none; border-radius: var(--radius); font-family: 'Montserrat', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
-    .btn-ms:hover { background: #f0f4ff; transform: translateY(-1px); }
-    .login-err { margin-top: 12px; background: rgba(192,57,43,0.14); border: 1px solid rgba(192,57,43,0.3); border-radius: var(--radius); padding: 10px; color: #ffa0a0; font-size: 13px; display: none; }
-    #loading-overlay { position: fixed; inset: 0; background: var(--navy); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; }
-    .load-logo { height: 30px; margin-bottom: 32px; }
-    .load-spinner { width: 36px; height: 36px; border: 3px solid rgba(74,253,14,0.18); border-top-color: var(--green); border-radius: 50%; animation: spin 0.75s linear infinite; margin-bottom: 16px; }
-    .load-txt { color: rgba(255,255,255,0.38); font-family: 'Montserrat', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 0.09em; text-transform: uppercase; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .skel { background: linear-gradient(90deg, var(--bg) 25%, var(--border) 50%, var(--bg) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 6px; }
-    @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
-
-    /* ── Responsive ─────────────────────────────────────────────────────── */
-    @media (max-width: 860px) {
-      .layout { grid-template-columns: 1fr; }
-      .balance-card { position: static; }
-      .type-grid { grid-template-columns: 1fr; }
-      .review-grid { grid-template-columns: 1fr; }
-      .review-item { border-right: none !important; }
-      .nav { padding: 0 16px; }
-      .nav-name { display: none; }
-      .page { padding: 20px 16px 48px; }
-      .step-body { padding: 20px; }
-      .wizard-footer { padding: 16px 20px; }
-    }
-    @media (max-width: 480px) {
-      .date-row { grid-template-columns: 1fr; }
-      .steps { overflow-x: auto; }
-      .impact-arrow { display: none; }
-    }
-  </style>
+<script>window.HR_REQUIRED_MODULE='leave';</script>
+<script src="/hr-guard.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trilogy BPO — Leave Management</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Wix+Madefor+Text:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--navy:#1e1e1e;--navy2:#2a2a2a;--green:#4AFD0E;--green-light:#edffd6;--green-dark:#2a8a00;--offwhite:#F7F6F2;--border:#e2e1dd;--border2:#c8c7c3;--surface:#fff;--surface2:#f2f1ed;--bg:#e8e7e3;--text:#1B2A4A;--text2:#4A5568;--text3:#7a8499;--radius:8px;--radius-lg:12px;--radius-xl:16px;--red:#c0392b;--orange:#e67e22;--amber:#f39c12}
+html{scroll-behavior:smooth;overflow-x:hidden}
+body{overflow-x:hidden;font-family:'Wix Madefor Text',sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.6;min-height:100vh}
+.nav{background:var(--navy);padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:64px;position:sticky;top:0;z-index:200;box-shadow:0 2px 24px rgba(0,0,0,.35)}
+.nav-logo{height:28px}
+.nav-divider{width:1px;height:20px;background:rgba(255,255,255,.15);margin:0 1rem}
+.nav-section{font-family:'Montserrat',sans-serif;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.4)}
+.nav-back{font-size:11px;color:rgba(255,255,255,.4);text-decoration:none;font-family:'Montserrat',sans-serif}
+.nav-back:hover{color:var(--green)}
+.hero{background:var(--navy);padding:2.5rem 2rem 2rem;position:relative;overflow:hidden;border-bottom:1px solid rgba(255,255,255,.05)}
+.hero::before{content:'';position:absolute;top:-80px;right:-40px;width:340px;height:340px;background:radial-gradient(circle,rgba(74,253,14,.06) 0%,transparent 70%);pointer-events:none}
+.hero-inner{max-width:1200px;margin:0 auto;position:relative;z-index:1}
+.hero-label{font-family:'Montserrat',sans-serif;font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--green);margin-bottom:.5rem;opacity:.8}
+.hero-title{font-family:'Montserrat',sans-serif;font-size:26px;font-weight:900;color:#fff;letter-spacing:-.02em;margin-bottom:.4rem}
+.hero-sub{font-size:13px;color:rgba(255,255,255,.4)}
+.hero-stats{display:flex;gap:2.5rem;margin-top:1.5rem;flex-wrap:wrap}
+.hstat{border-left:2px solid var(--green);padding-left:1rem}
+.hstat-num{font-family:'Montserrat',sans-serif;font-size:22px;font-weight:800;color:#fff;line-height:1}
+.hstat-label{font-size:11px;color:rgba(255,255,255,.4);margin-top:3px}
+.sp-refresh-btn{align-self:center;margin-left:auto;padding:9px 16px;background:transparent;border:1px solid rgba(255,255,255,.25);border-radius:8px;color:rgba(255,255,255,.75);font-family:'Montserrat',sans-serif;font-size:11px;font-weight:700;cursor:pointer;transition:all .15s;white-space:nowrap}
+.sp-refresh-btn:hover{border-color:#4AFD0E;color:#4AFD0E}
+.sp-refresh-btn:disabled{opacity:.4;cursor:not-allowed}
+.sp-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:500;display:flex;align-items:center;justify-content:center;padding:1.5rem}
+.sp-modal{background:#fff;border-radius:16px;max-width:480px;width:100%;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.sp-modal-title{font-family:'Montserrat',sans-serif;font-size:16px;font-weight:800;color:#1B2A4A;margin-bottom:12px}
+.sp-modal-body{font-size:13px;color:#4A5568;line-height:1.7}
+.sp-modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:18px}
+.sp-btn-cancel{padding:10px 18px;border:1px solid #c8c7c3;border-radius:8px;background:#fff;font-family:'Montserrat',sans-serif;font-size:12px;font-weight:700;color:#4A5568;cursor:pointer}
+.sp-btn-go{padding:10px 18px;border:none;border-radius:8px;background:#1e1e1e;color:#fff;font-family:'Montserrat',sans-serif;font-size:12px;font-weight:700;cursor:pointer}
+.sp-btn-go:hover{background:#4AFD0E;color:#111}
+.sp-btn-go:disabled{opacity:.5;cursor:not-allowed}
+.sp-modal-status{font-size:12px;margin-top:12px;color:#2a8a00;display:none}
+.sp-modal-status.show{display:block}
+.sp-modal-status.err{color:#c0392b}
+.shell{max-width:1200px;margin:0 auto;padding:2rem 2rem 5rem;display:grid;grid-template-columns:1fr 440px;gap:1.5rem;align-items:start}
+@media(max-width:980px){.shell{grid-template-columns:1fr;padding:1.5rem 1rem 4rem}}
+.toolbar{display:flex;align-items:center;gap:10px;margin-bottom:1rem;flex-wrap:wrap}
+.search-wrap{flex:1;min-width:200px;position:relative}
+.search-wrap input{width:100%;padding:10px 12px 10px 36px;border:1px solid var(--border2);border-radius:var(--radius);font-size:13px;font-family:inherit;color:var(--text);background:var(--surface)}
+.search-wrap input:focus{outline:none;border-color:var(--navy)}
+.search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:14px;pointer-events:none}
+.filter-sel{padding:10px 12px;border:1px solid var(--border2);border-radius:var(--radius);font-size:13px;font-family:inherit;color:var(--text);background:var(--surface);cursor:pointer}
+.count-badge{font-size:12px;color:var(--text3);font-family:'Montserrat',sans-serif;white-space:nowrap}
+.tbl-wrap{overflow-x:auto;border-radius:var(--radius-lg);box-shadow:0 1px 8px rgba(27,42,74,.08);background:var(--surface);border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--navy);color:rgba(255,255,255,.7);padding:10px 14px;text-align:left;font-family:'Montserrat',sans-serif;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;white-space:nowrap}
+td{padding:11px 14px;border-bottom:1px solid var(--border);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr.clickable{cursor:pointer;transition:background .12s}
+tr.clickable:hover td{background:#f7f6f2}
+tr.selected td{background:var(--green-light)}
+.emp-name{font-weight:700;color:var(--text)}
+.emp-ref{font-size:11px;color:var(--text3);font-family:'Montserrat',sans-serif}
+.status-pill{display:inline-block;font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;font-family:'Montserrat',sans-serif;white-space:nowrap}
+.s-active{background:var(--green-light);color:var(--green-dark)}
+.s-onboarded{background:#d1ecf1;color:#0c5460}
+.s-exited{background:#f0f0f0;color:#888}
+.emp-avatar{width:32px;height:32px;background:var(--navy);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;font-family:'Montserrat',sans-serif;flex-shrink:0}
+.loading-row td{text-align:center;padding:3rem;color:var(--text3)}
+.spinner{width:28px;height:28px;border:3px solid var(--border2);border-top-color:var(--navy);border-radius:50%;animation:spin 1s linear infinite;margin:0 auto .75rem}
+@keyframes spin{to{transform:rotate(360deg)}}
+/* Leave balance chip in table */
+.leave-chip{display:inline-block;font-family:'Montserrat',sans-serif;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px}
+.chip-ok{background:var(--green-light);color:var(--green-dark)}
+.chip-low{background:#fff3cd;color:#856404}
+.chip-none{background:#fde;color:var(--red)}
+/* Detail panel */
+.detail-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-xl);overflow:hidden;position:sticky;top:80px}
+.discrepancy-box{border-radius:var(--radius-lg);padding:14px 16px;margin:16px 0}
+.discrepancy-box.match{background:#edffd6;border:1px solid #b6e88a}
+.discrepancy-box.mismatch{background:#fcefe9;border:1px solid #e8a999}
+.disc-title{font-family:'Montserrat',sans-serif;font-size:12px;font-weight:800;margin-bottom:10px}
+.discrepancy-box.match .disc-title{color:var(--green-dark)}
+.discrepancy-box.mismatch .disc-title{color:var(--red)}
+.disc-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:12px;padding:5px 0;border-top:1px solid rgba(0,0,0,.05)}
+.disc-row:first-of-type{border-top:none}
+.disc-lbl{font-family:'Montserrat',sans-serif;font-weight:700;min-width:48px}
+.disc-val{color:var(--text2)}
+.disc-flag{margin-left:auto;color:var(--red);font-weight:700;font-family:'Montserrat',sans-serif;font-size:11px}
+.disc-ok{margin-left:auto;color:var(--green-dark);font-weight:700;font-size:11px}
+.disc-note{font-size:11px;color:var(--red);margin-top:8px;font-style:italic}
+.detail-empty{text-align:center;padding:3rem 1.5rem;color:var(--text3)}
+.detail-empty-icon{font-size:40px;margin-bottom:.75rem}
+.detail-empty p{font-size:13px}
+.panel-header{background:var(--navy);padding:1.25rem 1.5rem;display:flex;align-items:center;gap:12px}
+.panel-avatar{width:44px;height:44px;background:var(--green);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:900;color:#111;font-family:'Montserrat',sans-serif;flex-shrink:0}
+.panel-name{font-family:'Montserrat',sans-serif;font-size:15px;font-weight:800;color:#fff}
+.panel-ref{font-size:11px;color:rgba(255,255,255,.4);font-family:'Montserrat',sans-serif}
+.panel-body{padding:1.25rem;max-height:calc(100vh - 160px);overflow-y:auto}
+/* Leave balance cards */
+.leave-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1.25rem}
+.leave-card{background:var(--offwhite);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1rem;transition:border-color .15s}
+.leave-card.loading{opacity:.5}
+.leave-type{font-family:'Montserrat',sans-serif;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--text3);margin-bottom:6px}
+.leave-balance{font-family:'Montserrat',sans-serif;font-size:24px;font-weight:900;color:var(--navy);line-height:1}
+.leave-balance.low{color:var(--amber)}
+.leave-balance.critical{color:var(--red)}
+.leave-unit{font-size:11px;color:var(--text3);margin-top:2px}
+.leave-detail{font-size:10px;color:var(--text3);margin-top:6px;padding-top:6px;border-top:1px solid var(--border)}
+/* Buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 16px;border-radius:var(--radius);font-family:'Montserrat',sans-serif;font-size:12px;font-weight:700;cursor:pointer;border:none;text-decoration:none;transition:all .15s}
+.btn-primary{background:var(--navy);color:#fff}
+.btn-primary:hover{background:var(--navy2)}
+.btn-green{background:var(--green);color:#111}
+.btn-green:hover{background:#5fff1a}
+.btn-outline{background:#fff;color:var(--text);border:1px solid var(--border2)}
+.btn-outline:hover{background:var(--offwhite)}
+.btn-block{width:100%;margin-bottom:8px}
+/* BCEA reference card */
+.bcea-card{background:#f0f4ff;border:1px solid #c5d0e8;border-radius:var(--radius-lg);padding:1rem;margin-bottom:1rem}
+.bcea-title{font-family:'Montserrat',sans-serif;font-size:10px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:#2c4a8c;margin-bottom:.6rem}
+.bcea-row{display:flex;justify-content:space-between;font-size:11px;color:var(--text2);padding:3px 0;border-bottom:1px solid rgba(0,0,0,.06)}
+.bcea-row:last-child{border-bottom:none}
+.bcea-val{font-weight:600;color:var(--text)}
+/* Detail section label */
+.detail-section{font-family:'Montserrat',sans-serif;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text3);margin:.75rem 0 .5rem;display:flex;align-items:center;gap:8px}
+.detail-section::before,.detail-section::after{content:'';flex:1;height:1px;background:var(--border)}
+/* Modal */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;align-items:center;justify-content:center;padding:1rem}
+.modal-overlay.open{display:flex}
+.modal{background:#fff;border-radius:var(--radius-xl);padding:2rem;max-width:480px;width:100%;max-height:90vh;overflow-y:auto}
+.modal-title{font-family:'Montserrat',sans-serif;font-size:16px;font-weight:800;margin-bottom:.25rem}
+.modal-sub{font-size:12px;color:var(--text3);margin-bottom:1.5rem}
+.modal-actions{display:flex;gap:8px;margin-top:1.5rem}
+.field-group{margin-bottom:1rem}
+.field-group label{display:block;font-family:'Montserrat',sans-serif;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text3);margin-bottom:4px}
+.field-input{width:100%;padding:8px 10px;border:1px solid var(--border2);border-radius:var(--radius);font-size:13px;font-family:inherit;color:var(--text);background:var(--surface)}
+.field-input:focus{outline:none;border-color:var(--navy)}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+/* Footer */
+.footer{background:var(--navy);padding:1.25rem 2rem;margin-top:auto}
+.footer-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between}
+.footer-logo{height:18px}
+.footer-note{font-size:11px;color:rgba(255,255,255,.2)}
+/* Export btn */
+.export-btn{padding:8px 14px;background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius);font-size:12px;font-weight:600;font-family:'Montserrat',sans-serif;color:var(--text);cursor:pointer;display:flex;align-items:center;gap:6px}
+.export-btn:hover{background:var(--offwhite)}
+/* Loading state for detail */
+.detail-loading{text-align:center;padding:1rem;color:var(--text3);font-size:12px}
+.mini-spinner{width:16px;height:16px;border:2px solid var(--border2);border-top-color:var(--navy);border-radius:50%;animation:spin 1s linear infinite;display:inline-block;vertical-align:middle;margin-right:6px}
+</style>
 </head>
 <body>
 
-<!-- LOGIN -->
-<div id="login-screen">
-  <div class="login-box">
-    <img src="../../trilogy-logo.png" alt="Trilogy BPO" class="login-logo">
-    <div class="login-title">Leave Application</div>
-    <div class="login-sub">Sign in with your Trilogy account to continue.</div>
-    <button class="btn-ms" onclick="signIn()">
-      <svg width="20" height="20" viewBox="0 0 21 21" xmlns="http://www.w3.org/2000/svg">
-        <rect x="1"  y="1"  width="9" height="9" fill="#F35325"/>
-        <rect x="11" y="1"  width="9" height="9" fill="#81BC06"/>
-        <rect x="1"  y="11" width="9" height="9" fill="#05A6F0"/>
-        <rect x="11" y="11" width="9" height="9" fill="#FFBA08"/>
-      </svg>
-      Sign in with Microsoft
-    </button>
-    <div class="login-err" id="login-err"></div>
+<nav class="nav">
+  <div style="display:flex;align-items:center;gap:12px">
+    <img src="../trilogy-logo.png" alt="Trilogy BPO" class="nav-logo">
+    <div class="nav-divider"></div>
+    <div class="nav-section">Leave Management</div>
   </div>
-</div>
+  <a href="../" class="nav-back">← HR Portal</a>
+</nav>
 
-<!-- LOADING -->
-<div id="loading-overlay">
-  <img src="../../trilogy-logo.png" alt="Trilogy" class="load-logo">
-  <div class="load-spinner"></div>
-  <div class="load-txt" id="load-txt">Loading…</div>
-</div>
-
-<!-- APP -->
-<div id="app" style="display:none">
-
-  <nav class="nav">
-    <div class="nav-left">
-      <img src="../../trilogy-logo.png" alt="Trilogy BPO" class="nav-logo">
-      <div class="nav-divider"></div>
-      <div class="nav-section">Leave Application</div>
-    </div>
-    <div class="nav-user">
-      <a class="nav-back" href="../">← Back to Portal</a>
-      <div class="nav-divider"></div>
-      <div class="nav-av" id="nav-av"></div>
-      <span class="nav-name" id="nav-name"></span>
-    </div>
-  </nav>
-
-  <div class="page">
-    <div class="page-head">
-      <div class="page-title">Apply for Leave</div>
-      <div class="page-sub" id="page-sub">Loading your details…</div>
-    </div>
-
-    <div class="layout">
-
-      <!-- ── Sidebar ───────────────────────────────────────────── -->
-      <div>
-        <div class="balance-card">
-          <div class="balance-head">
-            <div class="balance-head-title">Your Leave Balance</div>
-            <div class="balance-head-name" id="sb-name">Loading…</div>
-          </div>
-          <div class="balance-body" id="sb-body">
-            <div class="skel" style="height:60px;margin-bottom:10px"></div>
-            <div class="skel" style="height:60px;margin-bottom:10px"></div>
-            <div class="skel" style="height:60px"></div>
-          </div>
-        </div>
-
-        <div class="mgr-card">
-          <div class="mgr-label">📨 Approval goes to</div>
-          <div class="mgr-info" id="mgr-info">
-            <div class="skel" style="width:38px;height:38px;border-radius:50%;flex-shrink:0"></div>
-            <div style="flex:1"><div class="skel" style="height:14px;margin-bottom:6px"></div><div class="skel" style="height:11px;width:60%"></div></div>
-          </div>
-          <div class="approval-note" id="approval-note" style="display:none"></div>
-        </div>
-      </div>
-
-      <!-- ── Wizard ────────────────────────────────────────────── -->
-      <div class="wizard-card">
-
-        <!-- Step indicator -->
-        <div class="steps" id="steps">
-          <div class="step-item active" data-step="1">
-            <div class="step-num">1</div>
-            <div class="step-lbl">Type</div>
-          </div>
-          <div class="step-item" data-step="2">
-            <div class="step-num">2</div>
-            <div class="step-lbl">Dates</div>
-          </div>
-          <div class="step-item" data-step="3">
-            <div class="step-num">3</div>
-            <div class="step-lbl">Details</div>
-          </div>
-          <div class="step-item" data-step="4">
-            <div class="step-num">4</div>
-            <div class="step-lbl">Review</div>
-          </div>
-        </div>
-
-        <!-- Step content -->
-        <div id="step-content"></div>
-
-        <!-- Wizard footer (hidden on success) -->
-        <div class="wizard-footer" id="wizard-footer">
-          <button class="btn btn-ghost" id="btn-back" onclick="prevStep()" style="visibility:hidden">← Back</button>
-          <button class="btn btn-primary" id="btn-next" onclick="nextStep()">Continue →</button>
-        </div>
-
-      </div>
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-label">Trilogy BPO · People</div>
+    <div class="hero-title">Leave Management</div>
+    <div class="hero-sub">BCEA-compliant leave balances for all employees. Log leave and track entitlements across Annual, Sick and Family Responsibility leave.</div>
+    <div class="hero-stats">
+      <div class="hstat"><div class="hstat-num" id="statActive">—</div><div class="hstat-label">Active employees</div></div>
+      <div class="hstat"><div class="hstat-num" id="statOnboarded">—</div><div class="hstat-label">Onboarded</div></div>
+      <div class="hstat"><div class="hstat-num" id="statLowLeave">—</div><div class="hstat-label">Low annual leave (≤5 days)</div></div>
+      <div class="hstat" id="discrepancyCard"><div class="hstat-num" id="statDiscrepancy" style="color:#fc8181">—</div><div class="hstat-label">SimplePay mismatches</div></div>
+      <button class="sp-refresh-btn" id="spRefreshBtn" onclick="confirmSimplePayRefresh()">↻ Refresh from SimplePay</button>
     </div>
   </div>
 </div>
 
-<!-- ================================================================
-     SCRIPT
-================================================================ -->
+<!-- SimplePay refresh confirmation modal -->
+<div class="sp-modal-overlay" id="spModal" style="display:none">
+  <div class="sp-modal">
+    <div class="sp-modal-title">⚠️ Refresh from SimplePay?</div>
+    <div class="sp-modal-body">
+      This pulls live pay &amp; leave data from SimplePay for <b>every employee on payroll</b>.
+      It takes roughly <b>3 seconds per employee</b> — with a large payroll this can take
+      <b>several minutes</b>. The page will keep working while it runs, but SimplePay figures
+      won't update until the pull finishes and you reload.
+      <br><br>Run it now?
+    </div>
+    <div class="sp-modal-actions">
+      <button class="sp-btn-cancel" onclick="closeSpModal()">Cancel</button>
+      <button class="sp-btn-go" id="spGoBtn" onclick="runSimplePayRefresh()">Yes, refresh now</button>
+    </div>
+    <div class="sp-modal-status" id="spStatus"></div>
+  </div>
+</div>
+
+<div class="shell">
+  <!-- ── LEFT PANEL: EMPLOYEE LIST ── -->
+  <div class="shell-left">
+    <div class="toolbar">
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="searchInput" placeholder="Search by name, ID or job title…" oninput="filterTable()">
+      </div>
+      <select class="filter-sel" id="statusFilter" onchange="filterTable()">
+        <option value="">All eligible</option>
+        <option value="Active">Active only</option>
+        <option value="Onboarded">Onboarded only</option>
+      </select>
+      <button class="export-btn" onclick="exportCSV()">⬇ Export CSV</button>
+      <a href="../leave-import/" class="export-btn" style="text-decoration:none">📥 Monthly import</a>
+      <span class="count-badge" id="countBadge">Loading…</span>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:40px"></th>
+            <th>Employee</th>
+            <th>Campaign</th>
+            <th>Status</th>
+            <th>Annual leave accrued</th>
+          </tr>
+        </thead>
+        <tbody id="empBody">
+          <tr class="loading-row"><td colspan="5"><div class="spinner"></div>Loading employees…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── RIGHT PANEL: LEAVE DETAIL ── -->
+  <div class="detail-panel" id="detailPanel">
+    <div class="detail-empty" id="detailEmpty">
+      <div class="detail-empty-icon">📅</div>
+      <p style="font-family:'Montserrat',sans-serif;font-size:13px;font-weight:700;color:var(--text2);margin-bottom:.25rem">Select an employee</p>
+      <p style="font-size:12px;color:var(--text3)">Click any row to view BCEA leave balances and log leave</p>
+    </div>
+
+    <div id="detailContent" style="display:none">
+      <div class="panel-header">
+        <div class="panel-avatar" id="panelAvatar">—</div>
+        <div>
+          <div class="panel-name" id="panelName">—</div>
+          <div class="panel-ref" id="panelRef">—</div>
+        </div>
+      </div>
+
+      <div class="panel-body">
+
+        <!-- Employee quick info -->
+        <div style="display:flex;gap:1rem;margin-bottom:1rem;flex-wrap:wrap">
+          <div style="flex:1;min-width:100px">
+            <div style="font-family:'Montserrat',sans-serif;font-size:9px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text3);margin-bottom:2px">Job title</div>
+            <div style="font-size:12px;color:var(--text)" id="d-jt">—</div>
+          </div>
+          <div style="flex:1;min-width:100px">
+            <div style="font-family:'Montserrat',sans-serif;font-size:9px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text3);margin-bottom:2px">Start date</div>
+            <div style="font-size:12px;color:var(--text)" id="d-sd">—</div>
+          </div>
+          <div style="flex:1;min-width:100px">
+            <div style="font-family:'Montserrat',sans-serif;font-size:9px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text3);margin-bottom:2px">Entitlement</div>
+            <div style="font-size:12px;color:var(--text)" id="d-ent">—</div>
+          </div>
+        </div>
+
+        <!-- Leave balance cards -->
+        <div class="detail-section">Leave balances <span id="leave-source-badge" style="font-family:'Wix Madefor Text',sans-serif;font-weight:400;font-size:10px;color:var(--text3);text-transform:none;letter-spacing:0;margin-left:4px"></span></div>
+        <div id="detailLoadingMsg" class="detail-loading" style="display:none"><span class="mini-spinner"></span>Loading actual taken amounts…</div>
+        <div class="leave-grid" id="leaveGrid">
+          <div class="leave-card" id="card-annual">
+            <div class="leave-type">Annual leave</div>
+            <div class="leave-balance" id="lv-annual">—</div>
+            <div class="leave-unit">days available</div>
+            <div class="leave-detail" id="lv-annual-detail"></div>
+          </div>
+          <div class="leave-card">
+            <div class="leave-type">Sick leave</div>
+            <div class="leave-balance" id="lv-sick">—</div>
+            <div class="leave-unit">days available</div>
+            <div class="leave-detail">30 days / 36-month cycle</div>
+          </div>
+          <div class="leave-card">
+            <div class="leave-type">Family responsibility</div>
+            <div class="leave-balance" id="lv-family">—</div>
+            <div class="leave-unit">days available</div>
+            <div class="leave-detail">3 days / annual cycle</div>
+          </div>
+          <div class="leave-card">
+            <div class="leave-type" id="lv-mat-label">Maternity / Parental</div>
+            <div class="leave-balance" id="lv-mat">—</div>
+            <div class="leave-unit">days entitlement</div>
+            <div class="leave-detail" id="lv-mat-detail"></div>
+          </div>
+        </div>
+
+        <!-- SimplePay vs our records discrepancy -->
+        <div class="discrepancy-box" id="discrepancyBox" style="display:none"></div>
+
+        <!-- Action buttons -->
+        <button class="btn btn-primary btn-block" onclick="openLeaveModal()">＋ Log / request leave</button>
+        <a class="btn btn-outline btn-block" id="empRecordLink" href="../employees/" style="text-decoration:none">↗ Open full employee record</a>
+
+        <!-- BCEA reference -->
+        <div class="detail-section">BCEA reference</div>
+        <div class="bcea-card">
+          <div class="bcea-title">Leave entitlements (BCEA 2002)</div>
+          <div class="bcea-row"><span>Annual leave</span><span class="bcea-val" id="bcea-annual">—</span></div>
+          <div class="bcea-row"><span>Sick leave</span><span class="bcea-val">30 days / 36 months</span></div>
+          <div class="bcea-row"><span>Family responsibility</span><span class="bcea-val">3 days / year</span></div>
+          <div class="bcea-row"><span>Maternity (female)</span><span class="bcea-val">~120 days (4 months)</span></div>
+          <div class="bcea-row"><span>Parental</span><span class="bcea-val">10 days</span></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── LEAVE MODAL ── -->
+<div class="modal-overlay" id="leaveModal">
+  <div class="modal">
+    <div class="modal-title">Log leave</div>
+    <div class="modal-sub">Record leave for <strong id="leaveEmpName"></strong></div>
+    <div class="field-group">
+      <label>Leave type</label>
+      <select class="field-input" id="leaveType">
+        <option>Annual</option>
+        <option>Sick</option>
+        <option>Family Responsibility</option>
+        <option>Maternity</option>
+        <option>Parental</option>
+        <option>Unpaid</option>
+      </select>
+    </div>
+    <div class="field-row">
+      <div class="field-group"><label>From</label><input type="date" class="field-input" id="leaveFrom"></div>
+      <div class="field-group"><label>To</label><input type="date" class="field-input" id="leaveTo"></div>
+    </div>
+    <div class="field-group">
+      <label>Days</label>
+      <input type="number" class="field-input" id="leaveDays" step="0.5" min="0.5" placeholder="e.g. 1, 2.5">
+    </div>
+    <div class="field-group">
+      <label>Reason (optional)</label>
+      <input type="text" class="field-input" id="leaveReason" placeholder="e.g. Annual holiday, medical certificate">
+    </div>
+    <div class="field-group">
+      <label>Status</label>
+      <select class="field-input" id="leaveStatus">
+        <option value="Approved">Approved</option>
+        <option value="Requested">Requested</option>
+        <option value="Declined">Declined</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeModal('leaveModal')" style="flex:1">Cancel</button>
+      <button class="btn btn-green" onclick="saveLeave()" style="flex:2">Save leave</button>
+    </div>
+    <div id="leaveResult" style="font-size:12px;text-align:center;margin-top:.75rem;min-height:16px"></div>
+  </div>
+</div>
+
+<div class="footer">
+  <div class="footer-inner">
+    <img src="../trilogy-logo-dark.png" alt="Trilogy BPO" class="footer-logo">
+    <div class="footer-note">Trilogy CX (Pty) Ltd · Confidential · Internal use only</div>
+  </div>
+</div>
+
 <script>
-'use strict';
+var GET_EMPLOYEES_URL='https://default77cde95f930f495e89c64d2c30f6df.21.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/845f7381bca24e189eb44725203089dd/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=QrjlEFKXktx5JYxWNb8LgUJAxi8TGzHqLjXh0RriG0U';
+var GET_DETAIL_URL='https://default77cde95f930f495e89c64d2c30f6df.21.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/6b82b43d3cc048efb566f7ff40093ad8/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=iqilALe0lU6amkgr8t_Y-zIIUjaefCz2qgeQjEeys9c';
+var SAVE_LEAVE_URL='https://default77cde95f930f495e89c64d2c30f6df.21.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/2f9acaa0f0254a72a662cbf4541f4da3/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=6K_5uXvdvOz7pFfDeQtwhdqfRSxmxz1Ib_sfZHHSD4k';
+var GET_SNAPSHOTS_URL='https://default77cde95f930f495e89c64d2c30f6df.21.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/767c17ab296443f3a7af81f4f91c88c6/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=FZFGAv95SRSp7SfURLYeimSyoD03FlxTN_30X_9qBzI';
+// SimplePay live pay & leave (same flow the Payroll page uses) — reads SQL PayrollSnapshot only, fast
+var SIMPLEPAY_URL='https://default77cde95f930f495e89c64d2c30f6df.21.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/816c0774c0214f63a21a4662d86ddfed/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=3fHxMihj8JztXCxFdROj-Q3EMOEM2sCs1FW9RyOGQ9k';
+// "Pull Payroll Snapshot" — SLOW: calls SimplePay per employee (~3s each). Only fired by the Refresh button.
+var SIMPLEPAY_PULL_URL='https://default77cde95f930f495e89c64d2c30f6df.21.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/63206e6ac0f54687971c58d176e4303e/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=rqmXyK_Sp8LBqg7z0ogVBrFC8fp1rxAgFS-wsFRtwwQ';
 
-// ── CONFIG ────────────────────────────────────────────────────────────
-const CONFIG = {
-  azureClientId: '4b515ddf-72b9-43eb-b36b-82fc69296a7c',
-  azureTenantId: '77cde95f-930f-495e-89c6-4d2c30f6df21',
-  redirectUri:   'https://portal.trilogybpo.com',
-  hrBase:        'https://hr.trilogybpo.com',
-};
+var ELIGIBLE_STATUSES=['Active','Onboarded','Resigned','Dismissed','Retrenched','AWOL','Deceased'];
+var allEmployees=[], filteredEmployees=[], selectedEmp=null;
+var snapshotMap={}; // { EmployeeID: {AnnualBalance, SickBalance, FamilyBalance, Period} }
+var simplepayMap={}; // { EmployeeID: {annual, sick} } from SimplePay live feed
 
-const FLOWS = {
-  GET_EMPLOYEES: 'https://default77cde95f930f495e89c64d2c30f6df.21.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/845f7381bca24e189eb44725203089dd/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=QrjlEFKXktx5JYxWNb8LgUJAxi8TGzHqLjXh0RriG0U',
-  GET_DETAIL:    'https://default77cde95f930f495e89c64d2c30f6df.21.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/6b82b43d3cc048efb566f7ff40093ad8/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=iqilALe0lU6amkgr8t_Y-zIIUjaefCz2qgeQjEeys9c',
-  SAVE_LEAVE:    'https://default77cde95f930f495e89c64d2c30f6df.21.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/2f9acaa0f0254a72a662cbf4541f4da3/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=6K_5uXvdvOz7pFfDeQtwhdqfRSxmxz1Ib_sfZHHSD4k',
-};
+function gi(id){return document.getElementById(id);}
+function initials(f,l){return((f||'')[0]||'').toUpperCase()+((l||'')[0]||'').toUpperCase();}
 
-// Leave page only needs User.Read — employee lookup is done via Power Automate flows
-const SCOPES = ['User.Read'];
+// ── LEAVE CALCULATIONS (BCEA) ──
+function monthsSince(dateStr){
+  if(!dateStr)return 0;
+  var start=new Date(dateStr.split('T')[0]);
+  var now=new Date();
+  if(start>now)return 0;
+  return (now.getFullYear()-start.getFullYear())*12+(now.getMonth()-start.getMonth())+(now.getDate()>=start.getDate()?0:-1);
+}
 
-// SA Public Holidays 2026 (for working-days calculation)
-const HOLIDAYS = new Set([
-  '2026-01-01','2026-03-21','2026-04-03','2026-04-06',
-  '2026-04-27','2026-05-01','2026-06-16','2026-08-09',
-  '2026-09-24','2026-12-16','2026-12-25','2026-12-26',
-]);
+function annualCycleSince(dateStr){
+  // Months into the current annual cycle (resets on anniversary)
+  if(!dateStr)return 0;
+  var start=new Date(dateStr.split('T')[0]);
+  var now=new Date();
+  if(start>now)return 0;
+  // Find anniversary year
+  var anniv=new Date(start);
+  while(anniv<=now)anniv.setFullYear(anniv.getFullYear()+1);
+  anniv.setFullYear(anniv.getFullYear()-1); // last anniversary
+  return (now.getFullYear()-anniv.getFullYear())*12+(now.getMonth()-anniv.getMonth())+(now.getDate()>=anniv.getDate()?0:-1);
+}
 
-// ── STATE ─────────────────────────────────────────────────────────────
-const S = {
-  step:       1,
-  graphToken: null,
-  employee:   null,
-  detail:     null,
-  manager:    null,
-  leave:      null,     // calculated leave balances
-  // form
-  leaveType:  null,     // 'Annual'|'Sick'|'Family'
-  startDate:  null,
-  endDate:    null,
-  days:       0,
-  reason:     '',
-  file:       null,
-  fileUrl:    null,
-  ack:        false,
-};
+function calcLeave(e,detail){
+  var entitlement=parseFloat(e.AnnualLeaveEntitlement||15);
+  var months=monthsSince(e.StartDate);
+  var accrued=Math.max(0,(entitlement/12)*months);
+  var annualTaken=parseFloat((detail&&detail.annual_taken)||0);
+  var annualAvail=parseFloat((accrued-annualTaken).toFixed(2));
 
-// ── MSAL ──────────────────────────────────────────────────────────────
-// MSAL initialised synchronously — so signIn() can call loginRedirect
-// directly from the button click without awaiting (Safari blocks navigation
-// if there's an await before it in the gesture handler)
-let msalApp = null;
-if (window.msal) {
-  try {
-    msalApp = new msal.PublicClientApplication({
-      auth: {
-        clientId:    CONFIG.azureClientId,
-        authority:   'https://login.microsoftonline.com/' + CONFIG.azureTenantId,
-        redirectUri: CONFIG.redirectUri,
-      },
-      cache: { cacheLocation: 'sessionStorage', storeAuthStateInCookie: true },
+  // Sick: 30 days per 36-month cycle
+  var sickTaken=parseFloat((detail&&detail.sick_taken)||0);
+  var sickAvail=Math.max(0,30-sickTaken);
+
+  // Family responsibility: 3 days per annual cycle
+  var famTaken=parseFloat((detail&&detail.family_taken)||0);
+  var famAvail=Math.max(0,3-famTaken);
+
+  var isFemale=(e.Gender||'').toLowerCase()==='female';
+  var matDays=isFemale?'~120':'10';
+  var matLabel=isFemale?'Maternity leave':'Parental leave';
+  var matDetail=isFemale?'4 consecutive months (BCEA)':'10 days (BCEA parental)';
+
+  return{annualAvail:annualAvail,accrued:accrued.toFixed(2),entitlement:entitlement,months:months,sickAvail:sickAvail.toFixed(0),famAvail:famAvail.toFixed(0),matDays:matDays,matLabel:matLabel,matDetail:matDetail,annualTaken:annualTaken,sickTaken:sickTaken,famTaken:famTaken};
+}
+
+function leaveChip(annualAvail){
+  if(annualAvail>10)return '<span class="leave-chip chip-ok">'+annualAvail+' days</span>';
+  if(annualAvail>5)return '<span class="leave-chip chip-low">'+annualAvail+' days</span>';
+  if(annualAvail>0)return '<span class="leave-chip chip-none">'+annualAvail+' days</span>';
+  return '<span class="leave-chip chip-none">0 days</span>';
+}
+
+// ── LOAD ──
+function loadEmployees(){
+  fetch(GET_EMPLOYEES_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'get_employees'})})
+  .then(function(r){return r.json();})
+  .then(function(d){
+    var data=d.body?(typeof d.body==='string'?JSON.parse(d.body):d.body):d;
+    var all=Array.isArray(data)?data:(data.employees||[]);
+    allEmployees=all.filter(function(e){return ELIGIBLE_STATUSES.indexOf(e.Status)>=0;});
+    renderStats();
+    filterTable();
+    // Load snapshots in background — page is already usable
+    loadSnapshots();
+  })
+  .catch(function(err){gi('empBody').innerHTML='<tr class="loading-row"><td colspan="5">⚠️ Could not load employees.<br><small>'+err.message+'</small></td></tr>';});
+}
+
+function loadSnapshots(){
+  fetch(GET_SNAPSHOTS_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({})})
+  .then(function(r){return r.json();})
+  .then(function(d){
+    var sbody=d.body?(typeof d.body==='string'?JSON.parse(d.body):d.body):d;
+    var rs=sbody.ResultSets||sbody.resultSets||sbody;
+    var rows=rs.Table1||rs.table1||(Array.isArray(rs)?rs:[]);
+    if(!Array.isArray(rows))return;
+    rows.forEach(function(row){
+      if(row.EmployeeID)snapshotMap[row.EmployeeID]={
+        annual:parseFloat(row.AnnualBalance)||0,
+        sick:parseFloat(row.SickBalance)||0,
+        family:parseFloat(row.FamilyBalance)||0,
+        period:row.Period||''
+      };
     });
-  } catch (e) { console.error('MSAL constructor:', e); }
+    // Refresh table and stats now snapshot data is available
+    renderStats();
+    filterTable();
+  })
+  .catch(function(){/* Snapshots unavailable — BCEA fallback stays, no error shown */});
+
+  // ── SimplePay live leave (for discrepancy checking) ──
+  fetch(SIMPLEPAY_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'})
+  .then(function(r){return r.json();})
+  .then(function(d){
+    var sp=d.body?(typeof d.body==='string'?JSON.parse(d.body):d.body):d;
+    var rows=Array.isArray(sp.rows)?sp.rows:(Array.isArray(sp)?sp:[]);
+    rows.forEach(function(row){
+      var rec={
+        annual: (row.AnnualLeaveBalance===null||row.AnnualLeaveBalance===undefined||row.AnnualLeaveBalance==='')?null:parseFloat(row.AnnualLeaveBalance),
+        sick:   (row.SickLeaveBalance===null||row.SickLeaveBalance===undefined||row.SickLeaveBalance==='')?null:parseFloat(row.SickLeaveBalance),
+        family: (row.FamilyLeaveBalance===null||row.FamilyLeaveBalance===undefined||row.FamilyLeaveBalance==='')?null:parseFloat(row.FamilyLeaveBalance),
+        name:   row.FullName||''
+      };
+      if(row.EmployeeID) simplepayMap[row.EmployeeID]=rec;
+      // also key by full name as a fallback match (SimplePay IDs may differ from ours)
+      if(row.FullName) simplepayMap['name:'+row.FullName.trim().toLowerCase()]=rec;
+    });
+    renderDiscrepancyStat();
+    renderStats();
+    filterTable(); // refresh table chips with SimplePay values
+    if(selectedEmp) selectEmployee(selectedEmp.EmployeeID); // refresh open detail
+  })
+  .catch(function(){/* SimplePay unavailable — discrepancy view just won't show */});
 }
 
-async function init() {
-  if (!msalApp) { show('login-screen'); return; }
-  try {
-    const resp = await msalApp.handleRedirectPromise();
-    if (resp) { await loadApp(resp.account); return; }
-    const accounts = msalApp.getAllAccounts();
-    if (accounts.length) { await loadApp(accounts[0]); }
-    else { show('login-screen'); }
-  } catch (e) { console.error('Init:', e); show('login-screen'); }
+// Match an employee to their SimplePay record by ID, then by full name
+function getSimplePay(e){
+  if(simplepayMap[e.EmployeeID]) return simplepayMap[e.EmployeeID];
+  var key='name:'+((e.FullName||(e.FirstName+' '+e.LastName))||'').trim().toLowerCase();
+  return simplepayMap[key]||null;
 }
 
-// NOT async — loginRedirect must be called synchronously from the button gesture
-function signIn() {
-  const errEl = document.getElementById('login-err');
-  errEl.style.display = 'none';
-  if (!msalApp) {
-    errEl.textContent = 'Authentication not available — please refresh the page.';
-    errEl.style.display = 'block';
+// ── SimplePay on-demand refresh (slow pull flow) ──
+function confirmSimplePayRefresh(){
+  if(!SIMPLEPAY_PULL_URL){
+    alert('The SimplePay pull flow is not connected yet.\n\nGive the "Pull Payroll Snapshot" flow a HTTP trigger and paste its URL into SIMPLEPAY_PULL_URL in this page.');
     return;
   }
-  msalApp.loginRedirect({ scopes: SCOPES }).catch(e => {
-    errEl.textContent = e.message || 'Sign-in failed. Please try again.';
-    errEl.style.display = 'block';
+  gi('spStatus').className='sp-modal-status';
+  gi('spStatus').textContent='';
+  gi('spGoBtn').disabled=false;
+  gi('spModal').style.display='flex';
+}
+function closeSpModal(){ gi('spModal').style.display='none'; }
+function runSimplePayRefresh(){
+  var go=gi('spGoBtn'), st=gi('spStatus'), btn=gi('spRefreshBtn');
+  go.disabled=true; btn.disabled=true;
+  st.className='sp-modal-status show';
+  st.textContent='Pull started… this runs in the background and may take several minutes.';
+  fetch(SIMPLEPAY_PULL_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'})
+    .then(function(r){
+      if(!r.ok) throw new Error('HTTP '+r.status);
+      st.textContent='✓ Pull completed. Reloading SimplePay figures…';
+      // re-fetch the (fast) snapshot read and refresh the page data
+      setTimeout(function(){ location.reload(); }, 1500);
+    })
+    .catch(function(err){
+      st.className='sp-modal-status show err';
+      st.textContent='Pull failed or timed out: '+err.message+'. Note: very long runs can exceed the browser timeout — the flow may still be running; check back in a few minutes and reload.';
+      go.disabled=false; btn.disabled=false;
+    });
+}
+
+// Count employees where SQL snapshot and SimplePay annual leave disagree by >0.5 day
+function renderDiscrepancyStat(){
+  var count=0, list=[];
+  allEmployees.forEach(function(e){
+    if(e.Status!=='Active')return;
+    var snap=snapshotMap[e.EmployeeID];
+    var spr=getSimplePay(e);
+    if(snap&&spr&&spr.annual!==null){
+      if(Math.abs((snap.annual||0)-(spr.annual||0))>0.5){ count++; list.push(e); }
+    }
   });
+  var el=gi('statDiscrepancy');
+  if(el) el.textContent=count;
+  var card=gi('discrepancyCard');
+  if(card) card.style.display=count>0?'':'';
+  window._discrepancyList=list;
 }
 
-// ── DATA LOAD ─────────────────────────────────────────────────────────
-async function loadApp(account) {
-  show('loading');
-  setLoad('Signing you in…');
-  try {
-    const token = await msalApp.acquireTokenSilent({ scopes: SCOPES, account })
-      .catch(() => msalApp.acquireTokenRedirect({ scopes: SCOPES, account }));
-    S.graphToken = token.accessToken;
-
-    setLoad('Loading your details…');
-    const raw = await callFlow(FLOWS.GET_EMPLOYEES);
-    const all = Array.isArray(raw) ? raw : (raw.employees || raw.value || []);
-
-    const email = (account.username || '').toLowerCase();
-    S.employee = all.find(e =>
-      (e.WorkEmail || '').toLowerCase() === email ||
-      (e.PersonalEmail || '').toLowerCase() === email
-    );
-    if (!S.employee) throw new Error(`No HR record found for ${account.username}. Contact HR.`);
-
-    setLoad('Loading leave data…');
-    try {
-      S.detail = await callFlow(FLOWS.GET_DETAIL, {
-        EmployeeID: S.employee.EmployeeID,
-        employeeId: S.employee.EmployeeID,
-      });
-    } catch { S.detail = {}; }
-
-    // ReportsTo stores the manager's full name, not their ID — match by name
-    S.manager = all.find(m =>
-      (m.FirstName + ' ' + m.LastName).toLowerCase() === (S.employee.ReportsTo || '').toLowerCase()
-    ) || null;
-    S.leave   = calcLeave(S.employee, S.detail);
-
-    show('app');
-    renderSidebar();
-    renderStep(1);
-
-  } catch (e) {
-    console.error('loadApp:', e);
-    show('login-screen');
-    const el = document.getElementById('login-err');
-    el.textContent = e.message || 'Failed to load. Please try again.';
-    el.style.display = 'block';
-  }
-}
-
-// ── UTILITIES ─────────────────────────────────────────────────────────
-function show(id) {
-  ['login-screen','loading-overlay','app'].forEach(s => {
-    const el = document.getElementById(s);
-    el.style.display = s === id ? (s === 'loading-overlay' ? 'flex' : (s === 'app' ? 'block' : 'flex')) : 'none';
+function renderStats(){
+  var active=0,onboarded=0,lowLeave=0;
+  allEmployees.forEach(function(e){
+    if(e.Status==='Active')active++;
+    if(e.Status==='Onboarded')onboarded++;
+    if(e.Status==='Active'){
+      var snap=snapshotMap[e.EmployeeID];
+      var sprS=getSimplePay(e);
+      var bal=(sprS&&sprS.annual!==null)?sprS.annual:(snap?snap.annual:calcLeave(e,null).annualAvail);
+      if(parseFloat(bal)<=5)lowLeave++;
+    }
   });
-}
-function setLoad(t) { document.getElementById('load-txt').textContent = t; }
-
-function initials(n) { return (n||'??').split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase(); }
-function fmtDate(d)  { if (!d) return '—'; return new Date(d+'T12:00:00').toLocaleDateString('en-ZA',{day:'numeric',month:'long',year:'numeric'}); }
-
-function unwrap(d) { return d.body ? (typeof d.body==='string' ? JSON.parse(d.body) : d.body) : d; }
-async function callFlow(url, body={}) {
-  const r = await fetch(url, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) });
-  if (!r.ok) {
-    const errText = await r.text().catch(() => '');
-    console.error('Flow error', r.status, errText);
-    throw new Error('Flow ' + r.status + (errText ? ': ' + errText.slice(0,200) : ''));
-  }
-  // Safely parse response — Power Automate sometimes returns empty or non-JSON body
-  try {
-    const text = await r.text();
-    if (!text || !text.trim()) return {};
-    return unwrap(JSON.parse(text));
-  } catch (e) {
-    console.warn('Flow response parse warning (non-fatal):', e.message);
-    return {}; // flow succeeded (2xx), just couldn't parse body
-  }
+  gi('statActive').textContent=active;
+  gi('statOnboarded').textContent=onboarded;
+  gi('statLowLeave').textContent=lowLeave;
 }
 
-function prorateAnnual(entitlement, startDate) {
-  if (!startDate) return entitlement;
-  const start = new Date(startDate);
-  const now   = new Date();
-  let ann = new Date(now.getFullYear(), start.getMonth(), start.getDate());
-  if (ann > now) ann = new Date(now.getFullYear() - 1, start.getMonth(), start.getDate());
-  const months = (now.getFullYear() - ann.getFullYear()) * 12 + (now.getMonth() - ann.getMonth());
-  const accrued = (Math.min(months, 12) / 12) * entitlement;
-  return Math.round(accrued * 100) / 100;
-}
-
-function calcLeave(emp, det) {
-  const total = prorateAnnual(emp.AnnualLeaveEntitlement || 15, emp.StartDate);
-  return {
-    annual:   { taken: det.annual_taken||0,   total,  remaining: Math.max(0, total-(det.annual_taken||0)) },
-    sick:     { taken: det.sick_taken||0,     total: 30, remaining: Math.max(0, 30-(det.sick_taken||0)) },
-    family:   { taken: det.family_taken||0,   total: 3,  remaining: Math.max(0, 3-(det.family_taken||0)) },
-    parental: { taken: det.parental_taken||0, total: 10, remaining: Math.max(0, 10-(det.parental_taken||0)) },
-  };
-}
-
-function workingDays(startStr, endStr) {
-  if (!startStr || !endStr) return 0;
-  const s = new Date(startStr+'T12:00:00');
-  const e = new Date(endStr+'T12:00:00');
-  if (e < s) return 0;
-  let count = 0;
-  const d = new Date(s);
-  while (d <= e) {
-    const dow = d.getDay();
-    const ds  = d.toISOString().split('T')[0];
-    if (dow !== 0 && dow !== 6 && !HOLIDAYS.has(ds)) count++;
-    d.setDate(d.getDate()+1);
-  }
-  return count;
-}
-
-function leaveKey(type) {
-  if (!type) return null;
-  if (type === 'Annual')   return 'annual';
-  if (type === 'Sick')     return 'sick';
-  if (type === 'Parental') return 'parental';
-  return 'family';
-}
-
-function remaining(type) {
-  const k = leaveKey(type);
-  return k ? S.leave[k].remaining : 0;
-}
-
-function remainClass(r, total) {
-  const p = r / total;
-  return p > 0.4 ? 'ok' : p > 0.15 ? 'warn' : 'bad';
-}
-
-function pBar(pct, cls) {
-  return `<div class="bal-bar"><div class="bal-fill ${cls}" style="width:0%" data-w="${Math.min(100,pct).toFixed(1)}%"></div></div>`;
-}
-function animBars() {
-  requestAnimationFrame(() => {
-    document.querySelectorAll('.bal-fill[data-w]').forEach(el => { el.style.width = el.dataset.w; });
+function filterTable(){
+  var q=gi('searchInput').value.toLowerCase();
+  var f=gi('statusFilter').value;
+  filteredEmployees=allEmployees.filter(function(e){
+    var name=((e.FirstName||'')+' '+(e.LastName||'')).toLowerCase();
+    var mq=!q||name.includes(q)||(e.EmployeeID||'').toLowerCase().includes(q)||(e.JobTitle||'').toLowerCase().includes(q)||(e.Campaign||'').toLowerCase().includes(q);
+    var mf=!f||e.Status===f;
+    return mq&&mf;
   });
+  renderTable(filteredEmployees);
 }
 
-function todayStr() { return new Date().toISOString().split('T')[0]; }
-function minDateStr(daysAhead=0) {
-  const d = new Date(); d.setDate(d.getDate()+daysAhead);
-  return d.toISOString().split('T')[0];
+function renderTable(list){
+  gi('countBadge').textContent=list.length+' employee'+(list.length!==1?'s':'');
+  if(!list.length){gi('empBody').innerHTML='<tr class="loading-row"><td colspan="5">No employees found</td></tr>';return;}
+  gi('empBody').innerHTML=list.map(function(e){
+    var l=calcLeave(e,null);
+    var spr=getSimplePay(e);
+    var snap=snapshotMap[e.EmployeeID];
+    var chipVal=(spr&&spr.annual!==null)?spr.annual:(snap?snap.annual:l.annualAvail);
+    var statusCls=e.Status==='Active'?'s-active':e.Status==='Onboarded'?'s-onboarded':'s-exited';
+    var sel=selectedEmp&&selectedEmp.EmployeeID===e.EmployeeID?' selected':'';
+    return '<tr class="clickable'+sel+'" onclick="selectEmployee(\''+e.EmployeeID+'\')">'+
+      '<td><div class="emp-avatar">'+initials(e.FirstName,e.LastName)+'</div></td>'+
+      '<td><div class="emp-name">'+(e.FirstName||'')+' '+(e.LastName||'')+'</div><div class="emp-ref">'+(e.EmployeeID||'')+'</div></td>'+
+      '<td style="font-size:12px;color:var(--text2)">'+(e.Campaign||'—')+'</td>'+
+      '<td><span class="status-pill '+statusCls+'">'+(e.Status||'—')+'</span></td>'+
+      '<td>'+leaveChip(chipVal)+'</td>'+
+      '</tr>';
+  }).join('');
 }
 
-// ── SIDEBAR ───────────────────────────────────────────────────────────
-function renderSidebar() {
-  const e = S.employee;
-  const l = S.leave;
+// ── SELECT ──
+function selectEmployee(id){
+  var e=allEmployees.find(function(x){return x.EmployeeID===id;});
+  if(!e)return;
+  selectedEmp=e;
+  gi('detailEmpty').style.display='none';
+  gi('detailContent').style.display='block';
+  gi('panelAvatar').textContent=initials(e.FirstName,e.LastName);
+  gi('panelName').textContent=(e.FirstName||'')+' '+(e.LastName||'');
+  gi('panelRef').textContent=e.EmployeeID+(e.JobTitle?' · '+e.JobTitle:'');
+  gi('d-jt').textContent=e.JobTitle||'—';
+  gi('d-sd').textContent=e.StartDate?e.StartDate.split('T')[0]:'—';
+  gi('d-ent').textContent=(e.AnnualLeaveEntitlement||15)+' days/yr';
+  gi('bcea-annual').textContent=(e.AnnualLeaveEntitlement||15)+' days/year';
+  gi('empRecordLink').href='../employees/?ref='+encodeURIComponent(e.EmployeeID);
 
-  document.getElementById('nav-av').textContent   = initials(e.FirstName+' '+e.LastName);
-  document.getElementById('nav-name').textContent  = e.FirstName;
-  document.getElementById('sb-name').textContent   = e.FirstName+' '+e.LastName;
-  document.getElementById('page-sub').textContent  = (e.JobTitle||'Employee')+' · '+e.Campaign;
+  // Render with accrued only first (no taken data yet)
+  renderLeave(e,null);
+  filterTable();
 
-  const aP = (l.annual.taken/l.annual.total)*100;
-  const sP = (l.sick.taken/l.sick.total)*100;
-  const fP = (l.family.taken/l.family.total)*100;
+  // Fetch actual taken amounts
+  gi('detailLoadingMsg').style.display='block';
+  fetch(GET_DETAIL_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({ref:e.EmployeeID})})
+  .then(function(r){return r.json();})
+  .then(function(d){
+    var detail=d.body?(typeof d.body==='string'?JSON.parse(d.body):d.body):d;
+    gi('detailLoadingMsg').style.display='none';
+    renderLeave(e,detail);
+  })
+  .catch(function(err){gi('detailLoadingMsg').style.display='none';console.warn('Detail error:',err);});
+}
 
-  document.getElementById('sb-body').innerHTML = `
-    <div class="bal-row" id="bal-annual">
-      <div class="bal-icon">🌴</div>
-      <div style="flex:1">
-        <div class="bal-name">Annual Leave</div>
-        <div class="bal-nums ${remainClass(l.annual.remaining,l.annual.total)}">${l.annual.remaining} <span>of ${l.annual.total} days remaining</span></div>
-        ${pBar(aP,'fil-g')}
-      </div>
-    </div>
-    <div class="bal-row" id="bal-sick">
-      <div class="bal-icon">🤒</div>
-      <div style="flex:1">
-        <div class="bal-name">Sick Leave</div>
-        <div class="bal-nums ${remainClass(l.sick.remaining,l.sick.total)}">${l.sick.remaining} <span>of 30 days remaining</span></div>
-        ${pBar(sP,'fil-b')}
-      </div>
-    </div>
-    <div class="bal-row" id="bal-family">
-      <div class="bal-icon">👨‍👩‍👧</div>
-      <div style="flex:1">
-        <div class="bal-name">Family Responsibility</div>
-        <div class="bal-nums ${remainClass(l.family.remaining,l.family.total)}">${l.family.remaining} <span>of 3 days remaining</span></div>
-        ${pBar(fP,'fil-o')}
-      </div>
-    </div>
-    <div class="bal-row" id="bal-parental">
-      <div class="bal-icon">👶</div>
-      <div style="flex:1">
-        <div class="bal-name">Parental Leave</div>
-        <div class="bal-nums ${remainClass(l.parental.remaining,l.parental.total)}">${l.parental.remaining} <span>of 10 days remaining</span></div>
-        ${pBar((l.parental.taken/l.parental.total)*100,'fil-p')}
-      </div>
-    </div>`;
-  setTimeout(animBars, 80);
+function renderLeave(e,detail){
+  var spr=getSimplePay(e);
+  var snap=snapshotMap[e.EmployeeID];
+  if(spr&&spr.annual!==null){
+    // ── SimplePay (payroll actuals) — primary source ──
+    var annNum=spr.annual;
+    var annEl=gi('lv-annual');
+    annEl.textContent=annNum.toFixed(2);
+    annEl.className='leave-balance'+(annNum<=3?' critical':annNum<=7?' low':'');
+    gi('lv-annual-detail').textContent='SimplePay payroll actual'+(detail&&detail.annual_taken?' · '+detail.annual_taken+' taken':'');
 
-  // Manager card
-  const mgrInfo = document.getElementById('mgr-info');
-  const mgrNote = document.getElementById('approval-note');
-  if (S.manager) {
-    mgrInfo.innerHTML = `
-      <div class="mgr-av">${initials(S.manager.FirstName+' '+S.manager.LastName)}</div>
-      <div>
-        <div class="mgr-name">${S.manager.FirstName} ${S.manager.LastName}</div>
-        <div class="mgr-role">${S.manager.JobTitle||'Manager'}</div>
-      </div>`;
-    mgrNote.textContent = 'Your leave request will be emailed to '+S.manager.FirstName+' for approval. You\'ll be notified of their decision.';
-    mgrNote.style.display = 'block';
+    // Sick & Family: SimplePay reports 0/null for staff past the BCEA vesting point —
+    // fall back to the statutory entitlement (less taken) once tenure crosses it.
+    // BCEA s22: full 30-day sick entitlement after 6 months. s27: 3 days FR after 4 months.
+    var bc=calcLeave(e,detail);
+    var months=monthsSince(e.StartDate);
+    var spSick=(spr.sick===null||spr.sick===undefined)?0:spr.sick;
+    var spFam=(spr.family===null||spr.family===undefined)?0:spr.family;
+    var sickVal, famVal;
+    if(spSick>0){ sickVal=spSick.toFixed(2); }
+    else if(months>=6){ sickVal=Math.max(0,30-(bc.sickTaken||0)).toFixed(2); }
+    else { sickVal=spSick.toFixed(2); }
+    if(spFam>0){ famVal=spFam.toFixed(2); }
+    else if(months>=4){ famVal=Math.max(0,3-(bc.famTaken||0)).toFixed(2); }
+    else { famVal=spFam.toFixed(2); }
+    gi('lv-sick').textContent=sickVal;
+    gi('lv-family').textContent=famVal;
+    var srcBadge=gi('leave-source-badge');
+    if(srcBadge)srcBadge.textContent='💰 SimplePay';
+  } else if(snap){
+    // ── Internal tracker snapshot (no SimplePay record) ──
+    var annNumS=snap.annual;
+    var annElS=gi('lv-annual');
+    annElS.textContent=annNumS.toFixed(2);
+    annElS.className='leave-balance'+(annNumS<=3?' critical':annNumS<=7?' low':'');
+    gi('lv-annual-detail').textContent='Internal tracker · '+snap.period+(detail&&detail.annual_taken?' · '+detail.annual_taken+' taken':'');
+    gi('lv-sick').textContent=snap.sick.toFixed(2);
+    gi('lv-family').textContent=snap.family.toFixed(2);
+    var srcBadgeS=gi('leave-source-badge');
+    if(srcBadgeS)srcBadgeS.textContent='📊 '+snap.period;
   } else {
-    mgrInfo.innerHTML = `<div style="font-size:13px;color:var(--text3)">No manager assigned. Leave will be submitted to HR.</div>`;
-    mgrNote.style.display = 'none';
+    // ── BCEA estimate ──
+    var l=calcLeave(e,detail);
+    var annNum2=parseFloat(l.annualAvail);
+    var annEl2=gi('lv-annual');
+    annEl2.textContent=l.annualAvail;
+    annEl2.className='leave-balance'+(annNum2<=3?' critical':annNum2<=7?' low':'');
+    gi('lv-annual-detail').textContent=l.entitlement+' days/yr · '+l.months+' months accrued'+(detail?' · '+l.annualTaken+' taken':'');
+    gi('lv-sick').textContent=l.sickAvail+(detail?'':'+');
+    gi('lv-family').textContent=l.famAvail+(detail?'':'+');
+    var srcBadge2=gi('leave-source-badge');
+    if(srcBadge2)srcBadge2.textContent='BCEA estimate';
   }
+  // Mat/Parental always from BCEA
+  var lm=calcLeave(e,detail);
+  gi('lv-mat').textContent=lm.matDays;
+  gi('lv-mat-label').textContent=lm.matLabel;
+  gi('lv-mat-detail').textContent=lm.matDetail;
+
+  // ── SimplePay vs SQL discrepancy check ──
+  renderDiscrepancy(e);
 }
 
-function highlightBalance(type) {
-  ['annual','sick','family'].forEach(k => {
-    const el = document.getElementById('bal-'+k);
-    if (el) el.classList.remove('bal-selected');
+function renderDiscrepancy(e){
+  var box=gi('discrepancyBox');
+  if(!box) return;
+  var snap=snapshotMap[e.EmployeeID];
+  var spr=getSimplePay(e);
+  if(!snap||!spr||spr.annual===null){
+    box.style.display='none';
+    return;
+  }
+  var sqlA=snap.annual||0, spA=spr.annual;
+  var sqlS=snap.sick||0, spS=(spr.sick===null?null:spr.sick);
+  var sqlF=snap.family||0, spF=(spr.family===null||spr.family===undefined?null:spr.family);
+  var diffA=sqlA-spA;
+  var mismatchA=Math.abs(diffA)>0.5;
+  var mismatchS=(spS!==null)&&Math.abs(sqlS-spS)>0.5;
+  var mismatchF=(spF!==null)&&Math.abs(sqlF-spF)>0.5;
+  var anyMismatch=mismatchA||mismatchS||mismatchF;
+
+  box.style.display='block';
+  box.className='discrepancy-box'+(anyMismatch?' mismatch':' match');
+  var rows='';
+  rows+='<div class="disc-row"><span class="disc-lbl">Annual</span>'+
+        '<span class="disc-val">SimplePay: <b>'+spA.toFixed(2)+'</b></span>'+
+        '<span class="disc-val">Our system: <b>'+sqlA.toFixed(2)+'</b></span>'+
+        (mismatchA?'<span class="disc-flag">⚠ '+(diffA>0?'system +'+diffA.toFixed(2):'system −'+Math.abs(diffA).toFixed(2))+'</span>':'<span class="disc-ok">✓ match</span>')+'</div>';
+  if(spS!==null){
+    rows+='<div class="disc-row"><span class="disc-lbl">Sick</span>'+
+          '<span class="disc-val">SimplePay: <b>'+spS.toFixed(2)+'</b></span>'+
+          '<span class="disc-val">Our system: <b>'+sqlS.toFixed(2)+'</b></span>'+
+          (mismatchS?'<span class="disc-flag">⚠ differs</span>':'<span class="disc-ok">✓ match</span>')+'</div>';
+  }
+  if(spF!==null){
+    rows+='<div class="disc-row"><span class="disc-lbl">Family</span>'+
+          '<span class="disc-val">SimplePay: <b>'+spF.toFixed(2)+'</b></span>'+
+          '<span class="disc-val">Our system: <b>'+sqlF.toFixed(2)+'</b></span>'+
+          (mismatchF?'<span class="disc-flag">⚠ differs</span>':'<span class="disc-ok">✓ match</span>')+'</div>';
+  }
+  box.innerHTML='<div class="disc-title">'+(anyMismatch?'⚠ Our system doesn\'t match SimplePay':'✓ Our system matches SimplePay')+'</div>'+rows+
+    (anyMismatch?'<div class="disc-note">SimplePay is the payroll source of truth — reconcile our internal records (or flag with the payroll company if SimplePay is wrong).</div>':'');
+}
+
+// ── LEAVE MODAL ──
+function openLeaveModal(){
+  if(!selectedEmp)return;
+  gi('leaveEmpName').textContent=selectedEmp.FirstName+' '+selectedEmp.LastName;
+  gi('leaveFrom').value='';
+  gi('leaveTo').value='';
+  gi('leaveDays').value='';
+  gi('leaveReason').value='';
+  gi('leaveStatus').value='Approved';
+  gi('leaveResult').innerHTML='';
+  gi('leaveModal').classList.add('open');
+}
+
+function saveLeave(){
+  var payload={
+    employee_id:selectedEmp.EmployeeID,
+    leave_type:gi('leaveType').value,
+    start_date:gi('leaveFrom').value,
+    end_date:gi('leaveTo').value,
+    days:gi('leaveDays').value,
+    reason:gi('leaveReason').value,
+    status:gi('leaveStatus').value
+  };
+  if(!payload.days||!payload.start_date){
+    gi('leaveResult').innerHTML='<span style="color:var(--red)">Please enter dates and number of days</span>';
+    return;
+  }
+  gi('leaveResult').innerHTML='<span class="mini-spinner"></span> Saving…';
+  fetch(SAVE_LEAVE_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
+  .then(function(){
+    gi('leaveResult').innerHTML='<span style="color:var(--green-dark)">✓ Leave saved successfully</span>';
+    setTimeout(function(){closeModal('leaveModal');selectEmployee(selectedEmp.EmployeeID);},1400);
+  })
+  .catch(function(){gi('leaveResult').innerHTML='<span style="color:var(--red)">✗ Failed to save</span>';});
+}
+
+function closeModal(id){gi(id).classList.remove('open');}
+
+// ── EXPORT CSV ──
+function exportCSV(){
+  if(!filteredEmployees.length)return;
+  var rows=[['Employee ID','First Name','Last Name','Job Title','Campaign','Status','Start Date','Entitlement (days/yr)','Months Accrued','Annual Accrued (est)']];
+  filteredEmployees.forEach(function(e){
+    var l=calcLeave(e,null);
+    rows.push([e.EmployeeID,e.FirstName,e.LastName,e.JobTitle,e.Campaign,e.Status,e.StartDate?e.StartDate.split('T')[0]:'',l.entitlement,l.months,l.accrued]);
   });
-  const map = { Annual:'annual', Sick:'sick', Family:'family', Parental:'parental' };
-  const el = document.getElementById('bal-'+map[type]);
-  if (el) el.classList.add('bal-selected');
+  var csv=rows.map(function(r){return r.map(function(v){return '"'+(v||'').toString().replace(/"/g,'""')+'"';}).join(',');}).join('\n');
+  var a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download='trilogy-leave-export-'+new Date().toISOString().split('T')[0]+'.csv';
+  a.click();
 }
 
-// ── STEP RENDERING ────────────────────────────────────────────────────
-function updateStepIndicator(current) {
-  document.querySelectorAll('.step-item').forEach(el => {
-    const n = parseInt(el.dataset.step);
-    el.classList.toggle('active', n === current);
-    el.classList.toggle('done',   n < current);
-  });
-  const back = document.getElementById('btn-back');
-  const next = document.getElementById('btn-next');
-  back.style.visibility = current > 1 ? 'visible' : 'hidden';
-  next.style.display = 'block';
-}
-
-function renderStep(n) {
-  S.step = n;
-  updateStepIndicator(n);
-  const body = document.getElementById('step-content');
-  const footer = document.getElementById('wizard-footer');
-  footer.style.display = 'flex';
-  if (n === 1) body.innerHTML = step1HTML();
-  if (n === 2) { body.innerHTML = step2HTML(); bindDateListeners(); }
-  if (n === 3) { body.innerHTML = step3HTML(); bindFileListeners(); }
-  if (n === 4) { body.innerHTML = step4HTML(); bindAck(); updateSubmitBtn(); }
-  if (n === 5) { body.innerHTML = successHTML(); footer.style.display = 'none'; }
-}
-
-// ── STEP 1 — LEAVE TYPE ───────────────────────────────────────────────
-function step1HTML() {
-  const l = S.leave;
-  function card(type, icon, name, rem, total, desc) {
-    const cls = S.leaveType === type ? 'type-card selected' : 'type-card';
-    const rCls = remainClass(rem, total);
-    return `<div class="${cls}" onclick="selectType('${type}')">
-      <div class="type-icon">${icon}</div>
-      <div class="type-name">${name}</div>
-      <div class="type-remain ${rCls}">${rem}</div>
-      <div class="type-entitle">${desc}</div>
-    </div>`;
-  }
-  return `<div class="step-body">
-    <div class="step-heading">What type of leave?</div>
-    <div class="step-sub">Select the leave type that applies. Your remaining balance is shown on each option.</div>
-    <div class="type-grid">
-      ${card('Annual','🌴','Annual Leave',l.annual.remaining,l.annual.total, l.annual.remaining+' days remaining · '+l.annual.total+' day entitlement')}
-      ${card('Sick','🤒','Sick Leave',l.sick.remaining,l.sick.total,'BCEA cycle · 30 days per 3 years')}
-      ${card('Family','👨‍👩‍👧','Family Responsibility',l.family.remaining,l.family.total,'3 days per year · immediate family')}
-      ${card('Parental','👶','Parental Leave',l.parental.remaining,l.parental.total,'10 days · BCEA parental entitlement')}
-    </div>
-    ${S.leaveType ? '' : '<div style="margin-top:16px;font-size:12px;color:var(--text3);text-align:center">Select a leave type to continue</div>'}
-  </div>`;
-}
-
-function selectType(type) {
-  S.leaveType = type;
-  highlightBalance(type);
-  renderStep(1);
-  document.getElementById('btn-next').disabled = false;
-}
-
-// ── STEP 2 — DATES ────────────────────────────────────────────────────
-function step2HTML() {
-  const days = S.days || 0;
-  const rem  = remaining(S.leaveType);
-  const insufficient = days > 0 && days > rem;
-  const isWeekend    = days === 0 && S.startDate && S.endDate;
-
-  return `<div class="step-body">
-    <div class="step-heading">Select your dates</div>
-    <div class="step-sub">Weekends and South African public holidays are automatically excluded from the working day count.</div>
-
-    <div class="date-row">
-      <div class="form-group">
-        <label class="form-label">Start Date</label>
-        <input type="date" class="form-input" id="inp-start" value="${S.startDate||''}" min="${todayStr()}" onchange="onDateChange()">
-        <div class="field-err" id="err-start"></div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">End Date</label>
-        <input type="date" class="form-input" id="inp-end" value="${S.endDate||''}" min="${S.startDate||todayStr()}" onchange="onDateChange()">
-        <div class="field-err" id="err-end"></div>
-      </div>
-    </div>
-
-    <div class="days-badge">
-      <div class="days-num" id="days-num">${days > 0 ? days : '—'}</div>
-      <div class="days-label">Working Day${days !== 1 ? 's' : ''}</div>
-      <div class="days-note" id="days-note">${days > 0 ? 'Weekends &amp; public holidays excluded' : 'Select both dates to calculate'}</div>
-    </div>
-
-    <div class="date-warning warn-red"    id="warn-insufficient" style="${insufficient?'display:block':''}">
-      ⚠️ You only have <strong>${rem} day${rem!==1?'s':''}</strong> of ${S.leaveType} Leave remaining. This request requires ${days} days.
-    </div>
-    <div class="date-warning warn-orange" id="warn-zero" style="${isWeekend?'display:block':''}">
-      ⚠️ No working days in the selected range. Please adjust your dates.
-    </div>
-    <div class="date-warning warn-green"  id="warn-ok" style="${days > 0 && !insufficient?'display:block':''}">
-      ✓ ${days} working day${days!==1?'s':''} requested · ${rem - days} day${(rem-days)!==1?'s':''} remaining after approval
-    </div>
-  </div>`;
-}
-
-function bindDateListeners() {
-  ['inp-start','inp-end'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.addEventListener('change', onDateChange);
-  });
-}
-
-function onDateChange() {
-  const s = document.getElementById('inp-start')?.value;
-  const e = document.getElementById('inp-end')?.value;
-  if (s) S.startDate = s;
-  if (e) S.endDate   = e;
-  if (S.startDate && S.endDate) {
-    S.days = workingDays(S.startDate, S.endDate);
-    const rem = remaining(S.leaveType);
-    const insufficient = S.days > rem;
-    document.getElementById('days-num').textContent = S.days > 0 ? S.days : '—';
-    document.getElementById('days-note').textContent = S.days > 0 ? 'Weekends & public holidays excluded' : 'No working days in range';
-    document.getElementById('warn-insufficient').style.display = (S.days > 0 && insufficient) ? 'block' : 'none';
-    document.getElementById('warn-zero').style.display  = (S.days === 0) ? 'block' : 'none';
-    document.getElementById('warn-ok').style.display    = (S.days > 0 && !insufficient) ? 'block' : 'none';
-    if (document.getElementById('warn-ok').style.display !== 'none') {
-      document.getElementById('warn-ok').textContent =
-        `✓ ${S.days} working day${S.days!==1?'s':''} requested · ${rem - S.days} day${(rem-S.days)!==1?'s':''} remaining after approval`;
-    }
-  }
-  const endEl = document.getElementById('inp-end');
-  if (endEl && S.startDate) endEl.min = S.startDate;
-}
-
-// ── STEP 3 — DETAILS & DOCS ───────────────────────────────────────────
-function step3HTML() {
-  const sickRequired = S.leaveType === 'Sick' || S.leaveType === 'Parental';
-  const fileBlock = S.file
-    ? `<div class="file-preview">
-        <div class="file-icon">${fileIcon(S.file.name)}</div>
-        <div>
-          <div class="file-name">${S.file.name}</div>
-          <div class="file-size">${(S.file.size/1024).toFixed(0)} KB</div>
-        </div>
-        <div class="file-remove" onclick="removeFile()" title="Remove">✕</div>
-       </div>`
-    : `<div class="upload-zone" id="drop-zone" onclick="document.getElementById('file-input').click()">
-        <div class="upload-icon">📎</div>
-        <div class="upload-title">Click to upload or drag &amp; drop</div>
-        <div class="upload-sub">PDF, JPG, PNG, DOCX · Max 5 MB</div>
-       </div>
-       <input type="file" class="upload-input" id="file-input" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" onchange="onFileSelect(event)">`;
-
-  return `<div class="step-body">
-    <div class="step-heading">Reason &amp; documentation</div>
-    <div class="step-sub">Give a brief reason for your leave request${sickRequired?' and attach your doctor\'s note':' (supporting documents are recommended for sick and parental leave)'}.</div>
-
-    <div class="form-group" style="margin-bottom:20px">
-      <label class="form-label">Reason for leave <span style="color:var(--red)">*</span></label>
-      <textarea class="form-textarea" id="inp-reason" placeholder="Briefly describe the reason for your leave request…" maxlength="500">${S.reason}</textarea>
-      <div class="field-err" id="err-reason"></div>
-    </div>
-
-    <div class="form-group">
-      <label class="form-label">Supporting Document ${sickRequired?'<span style="color:var(--red)">*</span>':'<span style="color:var(--text3)">(recommended)</span>'}</label>
-      ${fileBlock}
-      ${sickRequired && !S.file ? '<div class="doc-required">⚕️ Doctor\'s note is required for sick leave</div>' : ''}
-    </div>
-  </div>`;
-}
-
-function bindFileListeners() {
-  const drop = document.getElementById('drop-zone');
-  if (!drop) return;
-  drop.addEventListener('dragover',  e => { e.preventDefault(); drop.classList.add('drag'); });
-  drop.addEventListener('dragleave', () => drop.classList.remove('drag'));
-  drop.addEventListener('drop', e => {
-    e.preventDefault(); drop.classList.remove('drag');
-    const f = e.dataTransfer.files[0];
-    if (f) setFile(f);
-  });
-}
-
-function fileIcon(name) {
-  const ext = (name||'').split('.').pop().toLowerCase();
-  return ext==='pdf'?'📄':ext==='doc'||ext==='docx'?'📝':ext==='jpg'||ext==='jpeg'||ext==='png'?'🖼️':'📎';
-}
-
-function onFileSelect(evt) {
-  const f = evt.target.files[0];
-  if (f) setFile(f);
-}
-
-function setFile(f) {
-  if (f.size > 5*1024*1024) { alert('File must be under 5 MB.'); return; }
-  S.file = f; S.fileUrl = null;
-  renderStep(3);
-}
-
-function removeFile() { S.file = null; S.fileUrl = null; renderStep(3); }
-
-// ── STEP 4 — REVIEW ───────────────────────────────────────────────────
-function step4HTML() {
-  const rem   = remaining(S.leaveType);
-  const after = rem - S.days;
-  const typeFull = S.leaveType==='Annual'?'Annual Leave':S.leaveType==='Sick'?'Sick Leave':'Family Responsibility Leave';
-  const mgrName = S.manager ? `${S.manager.FirstName} ${S.manager.LastName}` : 'HR Department';
-
-  return `<div class="step-body">
-    <div class="step-heading">Review your request</div>
-    <div class="step-sub">Please check your details carefully before submitting. Once submitted, your manager will be notified for approval.</div>
-
-    <div class="review-grid">
-      <div class="review-item"><div class="review-key">Leave Type</div><div class="review-val">${typeFull}</div></div>
-      <div class="review-item"><div class="review-key">Working Days</div><div class="review-val">${S.days} day${S.days!==1?'s':''}</div></div>
-      <div class="review-item"><div class="review-key">From</div><div class="review-val">${fmtDate(S.startDate)}</div></div>
-      <div class="review-item"><div class="review-key">To</div><div class="review-val">${fmtDate(S.endDate)}</div></div>
-      <div class="review-item"><div class="review-key">Reason</div><div class="review-val">${S.reason||'—'}</div></div>
-      <div class="review-item"><div class="review-key">Document</div><div class="review-val">${S.file ? S.file.name : 'None attached'}</div></div>
-      <div class="review-item"><div class="review-key">Approval sent to</div><div class="review-val">${mgrName}</div></div>
-      <div class="review-item"><div class="review-key">Status after submit</div><div class="review-val">⏳ Pending approval</div></div>
-    </div>
-
-    <div class="review-impact">
-      <div class="impact-item"><div class="impact-num">${rem}</div><div class="impact-label">Days now</div></div>
-      <div class="impact-arrow">→</div>
-      <div class="impact-item"><div class="impact-num" style="color:var(--green)">${S.days}</div><div class="impact-label">Days requested</div></div>
-      <div class="impact-arrow">→</div>
-      <div class="impact-item"><div class="impact-num" style="color:${after<5?'#fc8181':after<8?'#f6ad55':'#9ae6b4'}">${after}</div><div class="impact-label">Days remaining</div></div>
-    </div>
-
-    <label class="ack-row">
-      <input type="checkbox" id="ack-check" onchange="onAck()" ${S.ack?'checked':''}>
-      <div class="ack-text">I confirm that the information above is accurate and I understand that submitting a false or fraudulent leave request may result in disciplinary action.</div>
-    </label>
-
-    <div style="text-align:center">
-      <button class="btn btn-submit" id="btn-submit" onclick="submitLeave()" ${!S.ack?'disabled':''}>
-        📤 Submit Leave Request
-      </button>
-    </div>
-  </div>`;
-}
-
-function bindAck() {
-  const cb = document.getElementById('ack-check');
-  if (cb) cb.addEventListener('change', onAck);
-}
-function onAck() { S.ack = document.getElementById('ack-check')?.checked; updateSubmitBtn(); }
-function updateSubmitBtn() {
-  const btn = document.getElementById('btn-submit');
-  if (btn) btn.disabled = !S.ack;
-}
-
-// ── STEP 5 — SUCCESS ──────────────────────────────────────────────────
-function successHTML() {
-  const typeFull = S.leaveType==='Annual'?'Annual Leave':S.leaveType==='Sick'?'Sick Leave':'Family Responsibility Leave';
-  const mgrName = S.manager ? S.manager.FirstName : 'your manager';
-  const ref = 'LV-' + Date.now().toString(36).toUpperCase().slice(-6);
-  return `<div class="success-screen">
-    <div class="success-icon">✅</div>
-    <div class="success-title">Leave Request Submitted</div>
-    <div class="success-sub">Your request has been sent to ${mgrName} for approval. You will receive an email notification once a decision has been made.</div>
-    <div class="success-summary">
-      <div class="ss-row"><span class="ss-key">Reference</span><span class="ss-val">${ref}</span></div>
-      <div class="ss-row"><span class="ss-key">Type</span><span class="ss-val">${typeFull}</span></div>
-      <div class="ss-row"><span class="ss-key">From</span><span class="ss-val">${fmtDate(S.startDate)}</span></div>
-      <div class="ss-row"><span class="ss-key">To</span><span class="ss-val">${fmtDate(S.endDate)}</span></div>
-      <div class="ss-row"><span class="ss-key">Days</span><span class="ss-val">${S.days} working day${S.days!==1?'s':''}</span></div>
-      <div class="ss-row"><span class="ss-key">Status</span><span class="ss-val">⏳ Pending approval</span></div>
-    </div>
-    <div class="success-actions">
-      <a href="../" class="btn btn-primary">← Back to Portal</a>
-      <button class="btn btn-ghost" onclick="resetForm()">Apply for another</button>
-    </div>
-  </div>`;
-}
-
-// ── NAVIGATION ────────────────────────────────────────────────────────
-function nextStep() {
-  if (!validateStep(S.step)) return;
-  renderStep(S.step + 1);
-}
-
-function prevStep() {
-  if (S.step > 1) renderStep(S.step - 1);
-}
-
-function validateStep(n) {
-  if (n === 1) {
-    if (!S.leaveType) { alert('Please select a leave type.'); return false; }
-    return true;
-  }
-  if (n === 2) {
-    if (!S.startDate) { showFieldErr('err-start', 'Please select a start date.'); return false; }
-    if (!S.endDate)   { showFieldErr('err-end',   'Please select an end date.'); return false; }
-    if (S.endDate < S.startDate) { showFieldErr('err-end', 'End date must be on or after start date.'); return false; }
-    if (S.days === 0) { alert('No working days in the selected range. Please adjust your dates.'); return false; }
-    if (S.days > remaining(S.leaveType)) {
-      if (!confirm(`You only have ${remaining(S.leaveType)} day(s) of ${S.leaveType} Leave remaining but are requesting ${S.days}. Continue anyway?`)) return false;
-    }
-    return true;
-  }
-  if (n === 3) {
-    const reason = document.getElementById('inp-reason')?.value?.trim() || '';
-    if (!reason) { showFieldErr('err-reason', 'Please provide a reason for your leave.'); return false; }
-    S.reason = reason;
-    if (S.leaveType === 'Sick' && !S.file) {
-      if (!confirm('No doctor\'s note attached. Are you sure you want to continue without supporting documentation?')) return false;
-    }
-    return true;
-  }
-  return true;
-}
-
-function showFieldErr(id, msg) {
-  const el = document.getElementById(id);
-  if (el) { el.textContent = msg; el.classList.add('show'); }
-}
-
-// ── SUBMIT ────────────────────────────────────────────────────────────
-async function submitLeave() {
-  const btn = document.getElementById('btn-submit');
-  btn.disabled = true;
-  btn.textContent = '⏳ Submitting…';
-
-  try {
-    // 1. Upload document to OneDrive if attached
-    if (S.file) {
-      try {
-        btn.textContent = '⏳ Uploading document…';
-        const safeName = `LeaveDoc_${S.employee.EmployeeID}_${S.startDate}_${S.file.name.replace(/[^a-zA-Z0-9._-]/g,'_')}`;
-        const uploadUrl = `https://graph.microsoft.com/v1.0/me/drive/root:/LeaveDocuments/${safeName}:/content`;
-        const upResp = await fetch(uploadUrl, {
-          method: 'PUT',
-          headers: { 'Authorization': 'Bearer '+S.graphToken, 'Content-Type': S.file.type||'application/octet-stream' },
-          body: S.file
-        });
-        if (upResp.ok) {
-          const upData = await upResp.json();
-          S.fileUrl = upData.webUrl || null;
-        } else {
-          console.warn('Document upload failed:', upResp.status, '— continuing without URL');
-        }
-      } catch (upErr) {
-        console.warn('Document upload error:', upErr, '— continuing without URL');
-      }
-    }
-
-    // 2. Call SAVE_LEAVE flow
-    btn.textContent = '⏳ Saving request…';
-    // All values as strings — matches the flow's JSON schema (all fields typed as string)
-    const payload = {
-      employee_id:   String(S.employee.EmployeeID),
-      leave_type:    S.leaveType === 'Annual'   ? 'Annual Leave'   :
-                     S.leaveType === 'Sick'      ? 'Sick Leave'     :
-                     S.leaveType === 'Parental'  ? 'Parental Leave' : 'Family Responsibility',
-      start_date:    S.startDate,
-      end_date:      S.endDate,
-      days:          String(S.days),
-      status:        'Pending',
-      reason:        S.reason,
-      // Extra fields for the email notification step in the flow
-      employee_name: S.employee.FirstName + ' ' + S.employee.LastName,
-      manager_name:  S.manager ? S.manager.FirstName + ' ' + S.manager.LastName : '',
-      manager_email: S.manager ? (S.manager.WorkEmail || S.manager.PersonalEmail || '') : '',
-    };
-
-    console.log('Submitting payload:', JSON.stringify(payload));
-    await callFlow(FLOWS.SAVE_LEAVE, payload);
-
-    // 3. Success
-    renderStep(5);
-
-  } catch (e) {
-    console.error('Submit error:', e);
-    btn.disabled = false;
-    btn.textContent = '📤 Submit Leave Request';
-    alert('Submission failed: '+e.message+'\n\nPlease try again or contact HR.');
-  }
-}
-
-function resetForm() {
-  S.step = 1; S.leaveType = null; S.startDate = null; S.endDate = null;
-  S.days = 0; S.reason = ''; S.file = null; S.fileUrl = null; S.ack = false;
-  document.getElementById('wizard-footer').style.display = 'flex';
-  ['annual','sick','family'].forEach(k => {
-    const el = document.getElementById('bal-'+k);
-    if (el) el.classList.remove('bal-selected');
-  });
-  renderStep(1);
-}
-
-// ── BOOT ─────────────────────────────────────────────────────────────
-window.addEventListener('DOMContentLoaded', init);
+loadEmployees();
 </script>
 </body>
 </html>
