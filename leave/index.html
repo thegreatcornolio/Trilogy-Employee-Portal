@@ -461,8 +461,7 @@ async function loadApp(account) {
     setLoad('Loading leave data…');
     try {
       S.detail = await callFlow(FLOWS.GET_DETAIL, {
-        EmployeeID: S.employee.EmployeeID,
-        employeeId: S.employee.EmployeeID,
+        ref: S.employee.EmployeeID,
       });
     } catch { S.detail = {}; }
 
