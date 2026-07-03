@@ -527,50 +527,8 @@ function prorateAnnual(entitlement, startDate) {
   return Math.round(accrued * 100) / 100;
 }
 
-function monthsSince(s) {
-  if (!s) return 0;
-  const d = new Date(s), n = new Date();
-  return Math.max(0, (n.getFullYear()-d.getFullYear())*12 + (n.getMonth()-d.getMonth()) - (n.getDate()<d.getDate()?1:0));
-}
-
 function calcLeave(emp, det) {
-  const entitle = emp.AnnualLeaveEntitlement || 15;
-  const months  = monthsSince(emp.StartDate);
-
-  // ── 1) SimplePay payroll actuals (sp_* from GET_DETAIL) — primary source ──
-  const hasSP = det.sp_annual !== undefined && det.sp_annual !== null && det.sp_annual !== '';
-  if (hasSP) {
-    // BCEA vesting fallback: SimplePay reports sick/FR as 0/null for staff past the
-    // statutory vesting point. s22: full 30-day sick after 6 months. s27: 3 days FR after 4 months.
-    let spSick = (det.sp_sick===null||det.sp_sick===undefined||det.sp_sick==='') ? 0 : parseFloat(det.sp_sick)||0;
-    let spFam  = (det.sp_family===null||det.sp_family===undefined||det.sp_family==='') ? 0 : parseFloat(det.sp_family)||0;
-    if (spSick <= 0 && months >= 6) spSick = Math.max(0, 30 - (det.sick_taken||0));
-    if (spFam  <= 0 && months >= 4) spFam  = Math.max(0, 3  - (det.family_taken||0));
-    return {
-      fromSimplePay: true,
-      asAt: det.sp_asat || '',
-      annual:   { taken: det.annual_taken||0,   total: entitle, remaining: parseFloat(det.sp_annual)||0 },
-      sick:     { taken: det.sick_taken||0,     total: 30, remaining: spSick },
-      family:   { taken: det.family_taken||0,   total: 3,  remaining: spFam },
-      parental: { taken: det.parental_taken||0, total: 10, remaining: Math.max(0, 10-(det.parental_taken||0)) },
-    };
-  }
-
-  // ── 2) Internal tracker snapshot (snap_* from GET_DETAIL) ──
-  const hasSnap = det.snap_annual !== undefined && det.snap_annual !== null && det.snap_month;
-  if (hasSnap) {
-    return {
-      fromSnapshot: true,
-      snapMonth: det.snap_month,
-      annual:   { taken: det.annual_taken||0,   total: entitle, remaining: parseFloat(det.snap_annual)||0 },
-      sick:     { taken: det.sick_taken||0,     total: 30, remaining: parseFloat(det.snap_sick)||0 },
-      family:   { taken: det.family_taken||0,   total: 3,  remaining: parseFloat(det.snap_family)||0 },
-      parental: { taken: det.parental_taken||0, total: 10, remaining: Math.max(0, 10-(det.parental_taken||0)) },
-    };
-  }
-
-  // ── 3) BCEA proration fallback — no payroll or tracker data ──
-  const total = prorateAnnual(entitle, emp.StartDate);
+  const total = prorateAnnual(emp.AnnualLeaveEntitlement || 15, emp.StartDate);
   return {
     annual:   { taken: det.annual_taken||0,   total,  remaining: Math.max(0, total-(det.annual_taken||0)) },
     sick:     { taken: det.sick_taken||0,     total: 30, remaining: Math.max(0, 30-(det.sick_taken||0)) },
@@ -674,9 +632,6 @@ function renderSidebar() {
         <div class="bal-nums ${remainClass(l.parental.remaining,l.parental.total)}">${l.parental.remaining} <span>of 10 days remaining</span></div>
         ${pBar((l.parental.taken/l.parental.total)*100,'fil-p')}
       </div>
-    </div>
-    <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--border);font-size:10px;color:var(--text3);text-align:center">
-      ${l.fromSimplePay ? '💰 Live from payroll (SimplePay)'+(l.asAt?' · as at '+l.asAt:'') : l.fromSnapshot ? '📊 Leave tracker · '+l.snapMonth : 'BCEA estimate'}
     </div>`;
   setTimeout(animBars, 80);
 
