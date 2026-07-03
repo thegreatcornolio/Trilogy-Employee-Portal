@@ -692,7 +692,7 @@ const GRAPH_SCOPES = ['User.Read', 'Calendars.Read', 'Mail.ReadBasic', 'Files.Re
 
 const S = {
   msUser:null, graphToken:null, employee:null, detail:null,
-  allEmployees:[], role:'employee', canSeeSensitive:false, teammates:[],
+  allEmployees:[], role:'employee', canSeeSensitive:false, teammates:[], directReports:[],
   calEvents:[], recentFiles:[], recentEmails:[], activeTab:'meetings', notices:[],
 };
 
@@ -862,6 +862,9 @@ async function loadDashboard(account) {
     var myEmail = (S.employee.WorkEmail||'').toLowerCase();
     S.canSeeSensitive = CONFIG.sensitiveAccess.indexOf(myEmail) >= 0;
     S.teammates = S.allEmployees.filter(e=>e.Campaign===S.employee.Campaign&&e.EmployeeID!==S.employee.EmployeeID&&e.Status==='Active');
+    // Direct reports = anyone whose ReportsTo matches my full name
+    var myFullName = S.employee.FullName || (S.employee.FirstName+' '+S.employee.LastName);
+    S.directReports = S.allEmployees.filter(e=>(e.ReportsTo||'')===myFullName && e.EmployeeID!==S.employee.EmployeeID);
 
     showScreen('portal');
     renderAll();
@@ -962,15 +965,22 @@ function renderQuickActions() {
 }
 
 function renderTeam() {
-  const {teammates:team,employee:me}=S;
-  document.getElementById('team-badge').textContent=me.Campaign||'—';
-  if (!team.length) { document.getElementById('team-body').innerHTML=`<div class="empty-state"><div class="empty-ico">👥</div><div class="empty-txt">No other active team members in this campaign.</div></div>`; return; }
-  const rows=team.slice(0,9).map(t=>{
+  const {directReports:reports,teammates:team,employee:me}=S;
+  // Prefer direct reports; if none, fall back to campaign teammates for the dots
+  const showReports = reports && reports.length;
+  const list = showReports ? reports : team;
+  document.getElementById('team-badge').textContent = showReports ? (reports.length+' report'+(reports.length!==1?'s':'')) : (me.Campaign||'—');
+  if (!list.length) { document.getElementById('team-body').innerHTML=`<div class="empty-state"><div class="empty-ico">👥</div><div class="empty-txt">No team members to show.</div></div>`; return; }
+  const rows=list.slice(0,9).map(t=>{
     const statusEl=t._detail?((t._detail.leave_records||[]).length?'<span class="pill-leave">On Leave</span>':'<div class="dot-avail"></div>'):'<div class="dot-load"></div>';
     return `<div class="member"><div class="mem-av">${initials(t.FirstName+' '+t.LastName)}</div><div><div class="mem-name">${t.FirstName} ${t.LastName}</div><div class="mem-role">${t.JobTitle||'—'}</div></div><div class="mem-status">${statusEl}</div></div>`;
   }).join('');
-  const more=team.length>9?`<div style="text-align:center;padding-top:10px;font-size:11px;color:var(--text3)">+${team.length-9} more</div>`:'';
-  document.getElementById('team-body').innerHTML=rows+more;
+  const more=list.length>9?`<div style="text-align:center;padding-top:10px;font-size:11px;color:var(--text3)">+${list.length-9} more</div>`:'';
+  // Manage My Team button — only for people who actually have direct reports
+  const manageBtn = showReports
+    ? `<a href="manageemployees/" class="action-btn" style="margin-top:14px;justify-content:center;border-color:var(--navy);background:var(--navy);color:#fff"><div class="action-lbl" style="flex:none">👥 Manage My Team</div></a>`
+    : '';
+  document.getElementById('team-body').innerHTML=rows+more+manageBtn;
 }
 
 function renderAlerts(leave) {
