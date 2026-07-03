@@ -298,6 +298,7 @@
     .alert-warn   { background: #fef3c7; border-color: #fcd34d; }
     .alert-danger { background: #fee2e2; border-color: #fca5a5; }
     .alert-info   { background: #dbeafe; border-color: #93c5fd; }
+    .alert-ok     { background: #e6f9df; border-color: #9ae87e; }
     .a-ico { font-size: 15px; flex-shrink: 0; margin-top: 2px; }
     .a-title { font-family: 'Montserrat', sans-serif; font-size: 12px; font-weight: 700; margin-bottom: 2px; }
     .a-body  { font-size: 12px; color: var(--text2); line-height: 1.45; }
@@ -1022,11 +1023,18 @@ async function loadPendingLeaveAlerts() {
   const recsOf = res => Array.isArray(res) ? res
     : (res?.records || res?.value
        || res?.ResultSets?.Table1 || res?.resultsets?.Table1 || []);
-  // My pending requests
+  // My pending requests + upcoming approved leave
   try {
     const res = await flow(FLOWS.GET_LEAVE_RECORDS, { employee_id: S.employee.EmployeeID });
-    S.myPending = recsOf(res).filter(pend);
-  } catch { S.myPending = []; }
+    const recs = recsOf(res);
+    S.myPending = recs.filter(pend);
+    const today = new Date(); today.setHours(0,0,0,0);
+    S.myUpcoming = recs.filter(x => {
+      if ((x.Status||x.status||'').toLowerCase()!=='approved') return false;
+      const ed = new Date(x.EndDate||x.end_date);
+      return !isNaN(ed) && ed >= today;
+    }).sort((a,b)=>new Date(a.StartDate||a.start_date)-new Date(b.StartDate||b.start_date)).slice(0,3);
+  } catch { S.myPending = []; S.myUpcoming = []; }
   renderAlerts(S.leaveCache || leaveCalc(S.employee, S.detail));
 
   // Direct reports' pending (include self-managed edge case: ReportsTo === my own name)
@@ -1084,6 +1092,17 @@ function renderAlerts(leave) {
   if (disc>0) alerts.push({type:'danger',icon:'⚠️',title:`${disc} Active Disciplinary Record${disc>1?'s':''}`,body:'Contact your line manager or HR for details.'});
   if (leave.annual.remaining<5) alerts.push({type:'warn',icon:'🌴',title:`Low Annual Leave: ${leave.annual.remaining} day${leave.annual.remaining!==1?'s':''} remaining`,body:"You're running low on annual leave for this cycle."});
   if (e.OnboardingComplete===false||e.OnboardingComplete===0||e.OnboardingComplete==='0') alerts.push({type:'info',icon:'📋',title:'Onboarding Incomplete',body:'You have outstanding onboarding steps. Contact HR.'});
+
+  // Upcoming approved leave — handover reminder (front and centre)
+  (S.myUpcoming||[]).forEach(lr=>{
+    const type=lr.LeaveType||lr.leave_type||'Leave';
+    const sd=lr.StartDate||lr.start_date, ed=lr.EndDate||lr.end_date;
+    const days=lr.Days||lr.days||'';
+    const daysToGo=Math.ceil((new Date(sd)-new Date())/86400000);
+    const when=daysToGo<=0?'starts today':daysToGo===1?'starts tomorrow':'in '+daysToGo+' days';
+    alerts.push({type:'ok',icon:'✅',title:`Upcoming leave: ${type}${days?' · '+days+' day'+(days!=1?'s':''):''} — ${when}`,
+      body:`${fmtDate(sd)} → ${fmtDate(ed)} · Approved. Remember to plan handovers and set your out-of-office.`});
+  });
 
   // My pending leave requests
   (S.myPending||[]).forEach(lr=>{

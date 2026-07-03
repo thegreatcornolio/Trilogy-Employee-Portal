@@ -1019,11 +1019,13 @@ function renderTeam() {
 // 1) My own pending requests  2) (managers) direct reports' pending requests with inline approve
 async function loadPendingLeaveAlerts() {
   const pend = x => ((x.Status||x.status||'').toLowerCase()==='pending');
+  const recsOf = res => Array.isArray(res) ? res
+    : (res?.records || res?.value
+       || res?.ResultSets?.Table1 || res?.resultsets?.Table1 || []);
   // My pending requests
   try {
     const res = await flow(FLOWS.GET_LEAVE_RECORDS, { employee_id: S.employee.EmployeeID });
-    const recs = Array.isArray(res) ? res : (res.records || res.value || []);
-    S.myPending = recs.filter(pend);
+    S.myPending = recsOf(res).filter(pend);
   } catch { S.myPending = []; }
   renderAlerts(S.leaveCache || leaveCalc(S.employee, S.detail));
 
@@ -1035,8 +1037,7 @@ async function loadPendingLeaveAlerts() {
   const tp = [];
   results.forEach((res,i) => {
     if (res.status !== 'fulfilled') return;
-    const recs = Array.isArray(res.value) ? res.value : (res.value.records || res.value.value || []);
-    recs.filter(pend).forEach(rec => tp.push({ emp: approvees[i], rec }));
+    recsOf(res.value).filter(pend).forEach(rec => tp.push({ emp: approvees[i], rec }));
   });
   S.teamPending = tp;
   renderAlerts(S.leaveCache || leaveCalc(S.employee, S.detail));
