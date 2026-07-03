@@ -643,7 +643,7 @@
       <div id="notice-form-step" style="display:none">
         <input type="text" id="notice-title" class="modal-input" placeholder="Notice title (e.g. Office closed Friday)">
         <textarea id="notice-msg" class="modal-input" rows="4" placeholder="Details…" style="resize:vertical"></textarea>
-        <label style="display:block;font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px">Date (optional)</label>
+        <label style="display:block;font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px">Date *</label>
         <input type="date" id="notice-date" class="modal-input">
         <select id="notice-type" class="modal-input">
           <option value="general">📢 General</option>
@@ -1040,9 +1040,10 @@ function submitNotice(){
   var ndate=document.getElementById('notice-date').value;
   var errEl=document.getElementById('notice-post-err');
   if(!title){errEl.textContent='Please enter a title.';errEl.style.display='';return;}
+  if(!ndate){errEl.textContent='Please choose a date.';errEl.style.display='';return;}
   var btn=document.getElementById('notice-submit-btn');
   btn.disabled=true; btn.textContent='Posting…';
-  flow(FLOWS.SAVE_NOTICE,{title:title,message:msg,notice_type:type,notice_date:ndate||null,posted_by:(S.employee.FirstName+' '+S.employee.LastName)})
+  flow(FLOWS.SAVE_NOTICE,{title:title,message:msg,notice_type:type,notice_date:ndate,posted_by:(S.employee.FirstName+' '+S.employee.LastName)})
     .then(function(){
       closeNoticeModal();
       btn.disabled=false; btn.textContent='Post Notice';

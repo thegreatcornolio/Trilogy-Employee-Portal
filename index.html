@@ -913,13 +913,14 @@ function renderSnapshot() {
   document.getElementById('snap-name').textContent = e.FirstName+' '+e.LastName;
   document.getElementById('snap-role').textContent = e.JobTitle||'—';
   document.getElementById('snap-campaign').textContent = '📋 '+(e.Campaign||'—');
-  const mgr=S.allEmployees.find(m=>m.EmployeeID==e.ReportsTo);
+  const mgr=S.allEmployees.find(m=>(m.FullName||(m.FirstName+' '+m.LastName))===e.ReportsTo);
+  const mgrName = mgr ? (mgr.FirstName+' '+mgr.LastName) : (e.ReportsTo || '—');
   document.getElementById('snap-grid').innerHTML=`
     <div class="snap-row"><div class="snap-key">Employee ID</div><div class="snap-val">${e.EmployeeID}</div></div>
     <div class="snap-row"><div class="snap-key">Start Date</div><div class="snap-val">${fmtDate(e.StartDate)}</div></div>
     <div class="snap-row"><div class="snap-key">Work Email</div><div class="snap-val"><a href="mailto:${e.WorkEmail}">${e.WorkEmail||'—'}</a></div></div>
     <div class="snap-row"><div class="snap-key">Mobile</div><div class="snap-val">${e.Mobile||'—'}</div></div>
-    <div class="snap-row"><div class="snap-key">Reports To</div><div class="snap-val">${mgr?mgr.FirstName+' '+mgr.LastName:'—'}</div></div>
+    <div class="snap-row"><div class="snap-key">Reports To</div><div class="snap-val">${mgrName}</div></div>
     <div class="snap-row"><div class="snap-key">Salary Freq.</div><div class="snap-val">${e.SalaryFrequency||'—'}</div></div>`;
 }
 
@@ -953,6 +954,7 @@ function renderLeave(leave) {
 function renderQuickActions() {
   const base=CONFIG.hrBase, eid=S.employee.EmployeeID;
   document.getElementById('quick-body').innerHTML=`
+    <a class="action-btn" href="crafti/"><div class="action-ico">🏁</div><div class="action-lbl">Ask HR (CRAFTI)</div><div class="action-arrow">›</div></a>
     <a class="action-btn" href="${base}/leave/?prefill=${eid}"><div class="action-ico">📋</div><div class="action-lbl">Log Leave</div><div class="action-arrow">›</div></a>
     <a class="action-btn" href="${base}/employees/?id=${eid}"><div class="action-ico">👤</div><div class="action-lbl">My Employee Record</div><div class="action-arrow">›</div></a>
     <a class="action-btn" href="${base}/payroll/?id=${eid}"><div class="action-ico">💰</div><div class="action-lbl">View Payslip</div><div class="action-arrow">›</div></a>
