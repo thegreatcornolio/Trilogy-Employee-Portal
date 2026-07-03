@@ -980,7 +980,7 @@ function renderQuickActions() {
   const base=CONFIG.hrBase, eid=S.employee.EmployeeID;
   document.getElementById('quick-body').innerHTML=`
     <a class="action-btn" href="crafti/"><div class="action-ico">🏁</div><div class="action-lbl">Ask HR (CRAFTI)</div><div class="action-arrow">›</div></a>
-    <a class="action-btn" href="${base}/leave/?prefill=${eid}"><div class="action-ico">📋</div><div class="action-lbl">Log Leave</div><div class="action-arrow">›</div></a>
+    <a class="action-btn" href="leave/?prefill=${eid}"><div class="action-ico">🌴</div><div class="action-lbl">Log Leave</div><div class="action-arrow">›</div></a>
     <a class="action-btn" href="${base}/employees/?id=${eid}"><div class="action-ico">👤</div><div class="action-lbl">My Employee Record</div><div class="action-arrow">›</div></a>
     <a class="action-btn" href="${base}/payroll/?id=${eid}"><div class="action-ico">💰</div><div class="action-lbl">View Payslip</div><div class="action-arrow">›</div></a>
     <a class="action-btn" href="${base}/disciplinary/?id=${eid}"><div class="action-ico">📁</div><div class="action-lbl">Disciplinary Records</div><div class="action-arrow">›</div></a>`;

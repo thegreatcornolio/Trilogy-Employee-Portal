@@ -730,6 +730,7 @@ async function graph(path) {
 }
 function initials(name) { return (name||'??').split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase(); }
 function daysEmployed(s) { return !s ? 0 : Math.max(0,Math.floor((Date.now()-new Date(s))/86400000)); }
+function monthsSince(s) { if(!s)return 0; const d=new Date(s),n=new Date(); return Math.max(0,(n.getFullYear()-d.getFullYear())*12+(n.getMonth()-d.getMonth())-(n.getDate()<d.getDate()?1:0)); }
 function fmtDate(d) { return !d ? '—' : new Date(d).toLocaleDateString('en-ZA',{day:'numeric',month:'short',year:'numeric'}); }
 function fmtTime(iso) { return !iso ? '' : new Date(iso).toLocaleTimeString('en-ZA',{hour:'2-digit',minute:'2-digit'}); }
 function fmtCurrency(n) { return new Intl.NumberFormat('en-ZA',{style:'currency',currency:'ZAR',maximumFractionDigits:0}).format(n||0); }
@@ -742,7 +743,26 @@ function detectRole(e) {
 }
 function leaveCalc(e,d) {
   const total=e.AnnualLeaveEntitlement||15;
-  // External tracker snapshot is the source of truth when present
+  // 1) SimplePay payroll actuals (PayrollSnapshot) — primary source
+  const hasSP = d.sp_annual!==undefined && d.sp_annual!==null && d.sp_annual!=='';
+  if (hasSP) {
+    // BCEA vesting fallback: SimplePay reports sick/FR as 0 or null for staff past
+    // the statutory vesting point. s22: full 30-day sick after 6 months of service.
+    // s27: 3 days family responsibility after 4 months.
+    const months=monthsSince(e.StartDate);
+    let spSick=(d.sp_sick===null||d.sp_sick===undefined||d.sp_sick==='')?0:parseFloat(d.sp_sick)||0;
+    let spFam=(d.sp_family===null||d.sp_family===undefined||d.sp_family==='')?0:parseFloat(d.sp_family)||0;
+    if (spSick<=0 && months>=6) spSick=Math.max(0,30-(d.sick_taken||0));
+    if (spFam<=0 && months>=4)  spFam=Math.max(0,3-(d.family_taken||0));
+    return {
+      fromSimplePay: true,
+      asAt: d.sp_asat||'',
+      annual:{ taken:d.annual_taken||0, total, remaining:parseFloat(d.sp_annual)||0 },
+      sick:  { taken:d.sick_taken||0,   total:30, remaining:spSick },
+      family:{ taken:d.family_taken||0, total:3,  remaining:spFam },
+    };
+  }
+  // 2) External tracker snapshot
   const hasSnap = d.snap_annual!==undefined && d.snap_annual!==null && d.snap_month;
   if (hasSnap) {
     return {
@@ -753,7 +773,7 @@ function leaveCalc(e,d) {
       family:{ taken:d.family_taken||0, total:3,  remaining:parseFloat(d.snap_family)||0 },
     };
   }
-  // BCEA fallback — no snapshot imported yet
+  // 3) BCEA fallback — no payroll or snapshot data yet
   return {
     fromSnapshot: false,
     annual:{ taken:d.annual_taken||0, total, remaining:Math.max(0,total-(d.annual_taken||0)) },
@@ -947,7 +967,9 @@ function renderLeave(leave) {
       ${progressBar(fPct,'pf-orange')}
     </div>
     <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border);font-size:11px;color:var(--text3);text-align:center;line-height:1.6">
-      ${leave.fromSnapshot
+      ${leave.fromSimplePay
+        ? 'Live from payroll (SimplePay)'+(leave.asAt?' · as at '+leave.asAt:'')
+        : leave.fromSnapshot
         ? 'Balances as per leave tracker · '+leave.snapMonth
         : 'Entitlement: '+leave.annual.total+' days annual · Resets on employment anniversary'}
     </div>`;
