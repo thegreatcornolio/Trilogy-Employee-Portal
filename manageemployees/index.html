@@ -126,8 +126,13 @@ var msalApp=null, S={ me:null, myFullName:'', reports:[] };
 function unwrap(d){ if(!d) return {}; if(typeof d==='string'){try{return unwrap(JSON.parse(d));}catch(e){return {};}} if(d.body){return typeof d.body==='string'?unwrap(JSON.parse(d.body)):unwrap(d.body);} return d; }
 async function flow(url, body){
   var r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body||{})});
-  if(!r.ok) throw new Error('Flow HTTP '+r.status);
-  var t=await r.text(); if(!t||t==='null'||t==='') return {};
+  var t=await r.text();
+  if(!r.ok){
+    var msg='Flow HTTP '+r.status;
+    try{ var parsed=unwrap(JSON.parse(t)); if(parsed && parsed.error) msg=parsed.error; }catch(e){}
+    throw new Error(msg);
+  }
+  if(!t||t==='null'||t==='') return {};
   try{return unwrap(JSON.parse(t));}catch(e){return {};}
 }
 function initials(n){return (n||'?').split(' ').map(function(w){return w[0];}).slice(0,2).join('').toUpperCase();}
