@@ -114,7 +114,8 @@ var FLOWS = {
   APPROVE_LEAVE:    'https://default77cde95f930f495e89c64d2c30f6df.21.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/3531e6f78a34492882d7ec3b5c878cf2/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=DBkS3MssGKGwq37wcBoXEKphGUgVuM_D5zReB4JkDFE',
   SAVE_LEAVE:       'https://default77cde95f930f495e89c64d2c30f6df.21.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/2f9acaa0f0254a72a662cbf4541f4da3/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=6K_5uXvdvOz7pFfDeQtwhdqfRSxmxz1Ib_sfZHHSD4k',
   SAVE_DISC:        'https://default77cde95f930f495e89c64d2c30f6df.21.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/c8ef7ff35f9f45aea1b8844dff8acdf4/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=TB2XdL0cTuf6xXNy3QBIbCORYriYOygOVYPx-Bv_03M',
-  OFFBOARD:         'https://default77cde95f930f495e89c64d2c30f6df.21.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/1533fa3be8884435ba21c152b661377f/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=ZaSGCd-qzzgsx0rW6uwyRVkZI2tZmrePaoJ1xDT-d28',
+  // ⚠️ Build the offboarding flow per the setup guide, then paste its URL here:
+  OFFBOARD:         'PASTE_HR_OFFBOARD_FLOW_URL_HERE',
 };
 
 var GRAPH_SCOPES = ['User.Read'];
@@ -362,61 +363,37 @@ async function submitDisc(i){
 }
 
 // ---- OFFBOARD ----
-var RESIGNATION_REASONS = [
-  'Better Offer Received','Compensation / Salary','Location Issues','Transport Issues',
-  'Management Issues','Shift / Hours / Schedule','Workload / Burnout','Career Growth Limited',
-  'Work-Life Balance','Studies / Further Education','Health / Medical','Relocation',
-  'Family Responsibilities','Immigration / Visa','Company Culture','Job Content Mismatch',
-  'Returned to Previous Employer','Other'
-];
-
 function panelOffboard(i,r){
   var today=new Date().toISOString().split('T')[0];
-  var reasonOpts=RESIGNATION_REASONS.map(function(x){return '<option>'+x+'</option>';}).join('');
   return '<div class="panel-title">Offboard — '+esc(r.FirstName+' '+r.LastName)+'</div>'+
-    '<div style="background:#fdf0ef;border:1px solid #f5c6c2;border-radius:8px;padding:10px 12px;font-size:12px;color:var(--red);margin-bottom:14px">⚠️ This starts the offboarding process. HR will complete the exit from here — this step does not deactivate the employee.</div>'+
-    '<div class="fg-row"><div class="fg"><label>Exit type</label><select id="ob-exittype-'+i+'" onchange="toggleResignFields('+i+')">'+
-      '<option value="Resigned">Resigned</option><option value="Dismissed">Dismissed</option>'+
-      '<option value="ContractEnded">Contract Ended</option><option value="ProbationFailed">Probation Failed</option></select></div>'+
+    '<div style="background:#fdf0ef;border:1px solid #f5c6c2;border-radius:8px;padding:10px 12px;font-size:12px;color:var(--red);margin-bottom:14px">⚠️ This starts the offboarding process and sets the employee to inactive. Please be sure.</div>'+
+    '<div class="fg-row"><div class="fg"><label>Reason</label><select id="ob-reason-'+i+'">'+
+      '<option>Resignation</option><option>Dismissal</option><option>Retrenchment</option><option>End of Contract</option><option>Mutual Separation</option><option>Absconded</option></select></div>'+
       '<div class="fg"><label>Last working day</label><input type="date" id="ob-lwd-'+i+'" value="'+today+'"></div></div>'+
-    '<div id="ob-resignwrap-'+i+'">'+
-      '<div class="fg"><label>Resignation reason</label><select id="ob-resignreason-'+i+'">'+reasonOpts+'</select></div>'+
-      '<div class="fg"><label>Additional detail (optional)</label><textarea id="ob-notes-'+i+'" placeholder="Any extra context"></textarea></div>'+
-    '</div>'+
-    '<div class="fg"><label style="display:flex;align-items:center;gap:8px;text-transform:none;font-size:13px;font-weight:600;color:var(--text)"><input type="checkbox" id="ob-rehire-'+i+'" style="width:auto"> Eligible for rehire</label></div>'+
+    '<div class="fg"><label>Notes</label><textarea id="ob-notes-'+i+'" placeholder="Context for the offboarding"></textarea></div>'+
     '<button class="save-btn" id="ob-btn-'+i+'" style="background:var(--red)" onclick="submitOffboard('+i+')">Start offboarding</button>'+
     '<div class="result" id="obres-'+i+'"></div>';
 }
 
-function toggleResignFields(i){
-  var exitType=document.getElementById('ob-exittype-'+i).value;
-  document.getElementById('ob-resignwrap-'+i).style.display = exitType==='Resigned' ? '' : 'none';
-}
-
 async function submitOffboard(i){
   var r=S.reports[i];
-  var exitType=document.getElementById('ob-exittype-'+i).value;
+  var reason=document.getElementById('ob-reason-'+i).value;
   var lwd=document.getElementById('ob-lwd-'+i).value;
-  var isResigned=exitType==='Resigned';
-  var resignReason=isResigned?document.getElementById('ob-resignreason-'+i).value:'';
-  var notes=isResigned?document.getElementById('ob-notes-'+i).value.trim():'';
-  var rehireEligible=document.getElementById('ob-rehire-'+i).checked;
+  var notes=document.getElementById('ob-notes-'+i).value.trim();
   var res=document.getElementById('obres-'+i);
   if(FLOWS.OFFBOARD.indexOf('PASTE_')===0){ res.className='result err show'; res.textContent='Offboarding flow not configured yet — see setup guide.'; return; }
-  if(!confirm('Start offboarding for '+r.FirstName+' '+r.LastName+'? HR and IT will be notified.')) return;
+  if(!confirm('Start offboarding for '+r.FirstName+' '+r.LastName+'? This sets them inactive.')) return;
   var btn=document.getElementById('ob-btn-'+i); btn.disabled=true; btn.textContent='Processing…';
   try{
     await flow(FLOWS.OFFBOARD,{
       employee_id: r.EmployeeID,
       employee_name: r.FirstName+' '+r.LastName,
-      exit_type: exitType,
+      reason: reason,
       last_working_day: lwd,
-      resignation_reason: resignReason,
-      exit_comments: notes,
-      rehire_eligible: rehireEligible,
+      notes: notes,
       initiated_by: S.myFullName,
     });
-    res.className='result ok show'; res.textContent='Offboarding started for '+r.FirstName+'. HR and IT have been notified.';
+    res.className='result ok show'; res.textContent='Offboarding started for '+r.FirstName+'. They have been set inactive.';
   }catch(e){ res.className='result err show'; res.textContent='Failed: '+e.message; }
   btn.disabled=false; btn.textContent='Start offboarding';
 }
