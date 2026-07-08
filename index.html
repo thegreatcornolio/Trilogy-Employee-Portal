@@ -352,6 +352,31 @@
     /* Modal */
     .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:9000; display:flex; align-items:center; justify-content:center; padding:1rem; }
     .modal-box { background:#fff; border-radius:14px; padding:28px; width:100%; max-width:440px; box-shadow:0 20px 60px rgba(0,0,0,0.3); }
+    .payslips-box { max-width:520px; max-height:90vh; overflow-y:auto; }
+    .ps-item { display:flex; align-items:center; justify-content:space-between; padding:12px 14px; border:1px solid var(--border); border-radius:var(--radius); margin-bottom:8px; }
+    .ps-item-period { font-family:'Montserrat',sans-serif; font-weight:700; font-size:13px; color:var(--text); }
+    .ps-item-nett { font-family:'Montserrat',sans-serif; font-weight:800; font-size:13px; color:var(--text2); }
+    .ps-view-btn { background:var(--navy); color:#fff; border:none; border-radius:6px; padding:6px 12px; font-family:'Montserrat',sans-serif; font-size:11px; font-weight:700; cursor:pointer; margin-left:12px; }
+    .ps-view-btn:hover { background:var(--green); color:#111; }
+    .ps-doc-head { display:flex; align-items:center; justify-content:space-between; padding-bottom:14px; margin-bottom:16px; border-bottom:2px solid var(--border); }
+    .ps-doc-tag { font-family:'Montserrat',sans-serif; font-size:10px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--text3); }
+    .ps-row { display:flex; justify-content:space-between; margin-bottom:1rem; flex-wrap:wrap; gap:1rem; }
+    .ps-block-label { font-size:10px; font-family:'Montserrat',sans-serif; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--text3); margin-bottom:.2rem; }
+    .ps-block-value { font-family:'Montserrat',sans-serif; font-weight:800; font-size:14px; color:var(--text); }
+    .ps-section { margin-bottom:1.1rem; }
+    .ps-section-title { font-family:'Montserrat',sans-serif; font-size:10px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:var(--text2); border-bottom:1px solid var(--border); padding-bottom:.35rem; margin-bottom:.5rem; }
+    .ps-line { display:flex; justify-content:space-between; padding:4px 0; font-size:12.5px; }
+    .ps-line.total { font-family:'Montserrat',sans-serif; font-weight:800; border-top:1px solid var(--border); margin-top:4px; padding-top:8px; }
+    .ps-nett { background:var(--green-light); border-radius:var(--radius); padding:.9rem 1.1rem; display:flex; justify-content:space-between; align-items:center; margin-top:.75rem; }
+    .ps-nett .lbl { font-family:'Montserrat',sans-serif; font-weight:800; font-size:12px; color:var(--green-dark); }
+    .ps-nett .val { font-family:'Montserrat',sans-serif; font-weight:900; font-size:19px; color:var(--green-dark); }
+    @media print {
+      body * { visibility:hidden; }
+      #payslips-doc-view, #payslips-doc-view * { visibility:visible; }
+      .modal-overlay { position:absolute; background:none; padding:0; }
+      .modal-box { box-shadow:none; max-height:none; overflow:visible; }
+      #payslips-doc-view .modal-actions { display:none; }
+    }
     .modal-title { font-family:'Montserrat',sans-serif; font-weight:800; font-size:18px; color:var(--text); margin-bottom:6px; }
     .modal-sub { font-size:13px; color:var(--text2); margin-bottom:16px; }
     .modal-input { width:100%; padding:11px 14px; border:1px solid var(--border2); border-radius:8px; font-size:14px; font-family:inherit; margin-bottom:12px; outline:none; }
@@ -669,6 +694,35 @@
   </div>
 </div>
 
+<!-- PAYSLIPS MODAL -->
+<div id="payslips-modal" class="modal-overlay" style="display:none" onclick="if(event.target===this) closePayslipsModal()">
+  <div class="modal-box payslips-box">
+    <div id="payslips-list-view">
+      <div class="modal-title">My Payslips</div>
+      <p class="modal-sub">Finalised payslips, most recent first.</p>
+      <div id="payslips-list-body" style="max-height:360px;overflow-y:auto;margin:14px 0">
+        <div class="skel" style="height:44px;margin-bottom:8px"></div>
+        <div class="skel" style="height:44px;margin-bottom:8px"></div>
+        <div class="skel" style="height:44px"></div>
+      </div>
+      <div class="modal-actions">
+        <button class="modal-btn-cancel" onclick="closePayslipsModal()">Close</button>
+      </div>
+    </div>
+    <div id="payslips-doc-view" style="display:none">
+      <div class="ps-doc-head">
+        <img src="../trilogy-logo.png" alt="Trilogy BPO" style="height:22px">
+        <span class="ps-doc-tag">Payslip</span>
+      </div>
+      <div id="payslips-doc-body"></div>
+      <div class="modal-actions">
+        <button class="modal-btn-cancel" onclick="backToPayslipsList()">← Back</button>
+        <button class="modal-btn-go" onclick="window.print()">Print / Save PDF</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 
 <script>
 'use strict';
@@ -696,6 +750,8 @@ const FLOWS = {
   // ── Noticeboard flows ──
   SAVE_NOTICE:   'https://default77cde95f930f495e89c64d2c30f6df.21.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/f12e732e55e14aa8983d174731870ae2/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=2llxYPjdD16T1EunNdi3msuXEbXPxwptsDATr7IzBIk',
   GET_NOTICES:   'https://default77cde95f930f495e89c64d2c30f6df.21.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/ebc09296aee244e9870adcb340991d2e/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=G1BKjVJTHNdMYYr-vrpTaYV3u5b3FRvkpcjiZ0TlLIk',
+  // ── Payslips (self-service) ──
+  GET_MY_PAYSLIPS: 'https://default77cde95f930f495e89c64d2c30f6df.21.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/16/workflows/a4aa78d749094e3f8b8009f911c3864e/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=OFqrYGm8rmhKNAn37Woxs4h99GHgp7uyveXuXrKi5dg',
 };
 
 const GRAPH_SCOPES = ['User.Read', 'Calendars.Read', 'Mail.ReadBasic', 'Files.Read'];
@@ -993,7 +1049,7 @@ function renderQuickActions() {
     <a class="action-btn" href="crafti/"><div class="action-ico">🏁</div><div class="action-lbl">Ask HR (CRAFTI)</div><div class="action-arrow">›</div></a>
     <a class="action-btn" href="leave/?prefill=${eid}"><div class="action-ico">🌴</div><div class="action-lbl">Log Leave</div><div class="action-arrow">›</div></a>
     <a class="action-btn" href="${base}/employees/?id=${eid}"><div class="action-ico">👤</div><div class="action-lbl">My Employee Record</div><div class="action-arrow">›</div></a>
-    <a class="action-btn" href="${base}/payroll/?id=${eid}"><div class="action-ico">💰</div><div class="action-lbl">View Payslip</div><div class="action-arrow">›</div></a>
+    <a class="action-btn" href="javascript:void(0)" onclick="openPayslipsModal()"><div class="action-ico">💰</div><div class="action-lbl">View Payslip</div><div class="action-arrow">›</div></a>
     <a class="action-btn" href="${base}/disciplinary/?id=${eid}"><div class="action-ico">📁</div><div class="action-lbl">Disciplinary Records</div><div class="action-arrow">›</div></a>`;
 }
 
@@ -1215,6 +1271,83 @@ function loadNotices(){
       console.log('Notices loaded:', S.notices.length, S.notices);
     })
     .catch(function(e){ console.log('loadNotices error:', e); S.notices=[]; });
+}
+
+// ── PAYSLIPS (self-service) ──
+var _psRows = [];
+function money2(v) {
+  if (v === null || v === undefined || isNaN(v)) return '—';
+  return new Intl.NumberFormat('en-ZA', { style:'currency', currency:'ZAR', minimumFractionDigits:2, maximumFractionDigits:2 }).format(v);
+}
+function parseJsonField(v) {
+  if (v == null) return [];
+  if (Array.isArray(v)) return v;
+  try { return JSON.parse(v); } catch (e) { return []; }
+}
+function lineFind(arr, label) {
+  if (!Array.isArray(arr)) return null;
+  var hit = arr.find(function(pair){ return Array.isArray(pair) && String(pair[0]).toLowerCase() === label.toLowerCase(); });
+  return hit ? Number(hit[1]) : null;
+}
+function openPayslipsModal() {
+  document.getElementById('payslips-modal').style.display = 'flex';
+  document.getElementById('payslips-list-view').style.display = '';
+  document.getElementById('payslips-doc-view').style.display = 'none';
+  loadMyPayslips();
+}
+function closePayslipsModal() {
+  document.getElementById('payslips-modal').style.display = 'none';
+}
+function backToPayslipsList() {
+  document.getElementById('payslips-list-view').style.display = '';
+  document.getElementById('payslips-doc-view').style.display = 'none';
+}
+async function loadMyPayslips() {
+  var body = document.getElementById('payslips-list-body');
+  var myEmail = (S.employee.WorkEmail || '').toLowerCase();
+  try {
+    var rows = await flow(FLOWS.GET_MY_PAYSLIPS, { email: myEmail });
+    _psRows = Array.isArray(rows) ? rows : [];
+    if (!_psRows.length) {
+      body.innerHTML = '<div class="empty-state"><div class="empty-ico">💰</div><div class="empty-txt">No finalised payslips yet.</div></div>';
+      return;
+    }
+    body.innerHTML = _psRows.map(function(r, i) {
+      return '<div class="ps-item"><div class="ps-item-period">' + fmtDate(r.PeriodEndDate) + '</div>' +
+        '<div style="display:flex;align-items:center"><span class="ps-item-nett">' + money2(r.NettPay) + '</span>' +
+        '<button class="ps-view-btn" onclick="showMyPayslipDoc(' + i + ')">View</button></div></div>';
+    }).join('');
+  } catch (e) {
+    body.innerHTML = '<div class="empty-state"><div class="empty-ico">⚠️</div><div class="empty-txt">Could not load payslips: ' + (e.message||'') + '</div></div>';
+  }
+}
+function showMyPayslipDoc(i) {
+  var r = _psRows[i];
+  var income = parseJsonField(r.IncomeJSON);
+  var deduction = parseJsonField(r.DeductionJSON);
+  var sideline = parseJsonField(r.SidelineJSON);
+  var fmtLines = function(arr) {
+    return (arr||[]).filter(function(x){ return x[0].toLowerCase() !== 'total'; })
+      .map(function(x){ return '<div class="ps-line"><span>'+x[0]+'</span><span>'+money2(Number(x[1]))+'</span></div>'; }).join('');
+  };
+  var totalOf = function(arr){ return lineFind(arr, 'Total'); };
+  var employerHtml = '';
+  (sideline||[]).forEach(function(block){
+    if (!Array.isArray(block) || block[0].toLowerCase() !== 'employer contribution') return;
+    employerHtml = '<div class="ps-section"><div class="ps-section-title">Employer Contributions</div>' + fmtLines(block[1]) +
+      '<div class="ps-line total"><span>Total</span><span>' + money2(totalOf(block[1])) + '</span></div></div>';
+  });
+  document.getElementById('payslips-doc-body').innerHTML =
+    '<div class="ps-row"><div><div class="ps-block-label">Employee</div><div class="ps-block-value">' + (S.employee.FirstName+' '+S.employee.LastName) + '</div></div>' +
+    '<div style="text-align:right"><div class="ps-block-label">Pay period</div><div class="ps-block-value">' + fmtDate(r.PeriodEndDate) + '</div></div></div>' +
+    '<div class="ps-section"><div class="ps-section-title">Income</div>' + fmtLines(income) +
+    '<div class="ps-line total"><span>Total</span><span>' + money2(totalOf(income)) + '</span></div></div>' +
+    '<div class="ps-section"><div class="ps-section-title">Deductions</div>' + fmtLines(deduction) +
+    '<div class="ps-line total"><span>Total</span><span>' + money2(totalOf(deduction)) + '</span></div></div>' +
+    employerHtml +
+    '<div class="ps-nett"><span class="lbl">Nett Pay</span><span class="val">' + money2(r.NettPay) + '</span></div>';
+  document.getElementById('payslips-list-view').style.display = 'none';
+  document.getElementById('payslips-doc-view').style.display = '';
 }
 
 window.addEventListener('DOMContentLoaded', init);
