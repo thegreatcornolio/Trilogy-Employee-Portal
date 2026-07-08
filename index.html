@@ -353,29 +353,55 @@
     .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:9000; display:flex; align-items:center; justify-content:center; padding:1rem; }
     .modal-box { background:#fff; border-radius:14px; padding:28px; width:100%; max-width:440px; box-shadow:0 20px 60px rgba(0,0,0,0.3); }
     .payslips-box { max-width:520px; max-height:90vh; overflow-y:auto; }
-    .ps-item { display:flex; align-items:center; justify-content:space-between; padding:12px 14px; border:1px solid var(--border); border-radius:var(--radius); margin-bottom:8px; }
-    .ps-item-period { font-family:'Montserrat',sans-serif; font-weight:700; font-size:13px; color:var(--text); }
-    .ps-item-nett { font-family:'Montserrat',sans-serif; font-weight:800; font-size:13px; color:var(--text2); }
-    .ps-view-btn { background:var(--navy); color:#fff; border:none; border-radius:6px; padding:6px 12px; font-family:'Montserrat',sans-serif; font-size:11px; font-weight:700; cursor:pointer; margin-left:12px; }
-    .ps-view-btn:hover { background:var(--green); color:#111; }
-    .ps-doc-head { display:flex; align-items:center; justify-content:space-between; padding-bottom:14px; margin-bottom:16px; border-bottom:2px solid var(--border); }
-    .ps-doc-tag { font-family:'Montserrat',sans-serif; font-size:10px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--text3); }
-    .ps-row { display:flex; justify-content:space-between; margin-bottom:1rem; flex-wrap:wrap; gap:1rem; }
-    .ps-block-label { font-size:10px; font-family:'Montserrat',sans-serif; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--text3); margin-bottom:.2rem; }
-    .ps-block-value { font-family:'Montserrat',sans-serif; font-weight:800; font-size:14px; color:var(--text); }
-    .ps-section { margin-bottom:1.1rem; }
-    .ps-section-title { font-family:'Montserrat',sans-serif; font-size:10px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:var(--text2); border-bottom:1px solid var(--border); padding-bottom:.35rem; margin-bottom:.5rem; }
-    .ps-line { display:flex; justify-content:space-between; padding:4px 0; font-size:12.5px; }
-    .ps-line.total { font-family:'Montserrat',sans-serif; font-weight:800; border-top:1px solid var(--border); margin-top:4px; padding-top:8px; }
-    .ps-nett { background:var(--green-light); border-radius:var(--radius); padding:.9rem 1.1rem; display:flex; justify-content:space-between; align-items:center; margin-top:.75rem; }
-    .ps-nett .lbl { font-family:'Montserrat',sans-serif; font-weight:800; font-size:12px; color:var(--green-dark); }
-    .ps-nett .val { font-family:'Montserrat',sans-serif; font-weight:900; font-size:19px; color:var(--green-dark); }
+    /* Payslip — brand palette */
+    :root {
+      --ps-navy: #0c1926;
+      --ps-lime: #caea70;
+      --ps-mint: #71e56e;
+      --ps-offwhite: #f5f7f9;
+    }
+    .modal-box.payslips-box { max-width:540px; background:var(--ps-offwhite); padding:0; overflow:hidden; }
+    .ps-list-pad { padding:28px; }
+    .ps-item { display:flex; align-items:center; justify-content:space-between; padding:14px 16px; background:#fff; border:1px solid #e6e9ec; border-radius:12px; margin-bottom:10px; transition:box-shadow .15s,border-color .15s; }
+    .ps-item:hover { border-color:var(--ps-mint); box-shadow:0 4px 14px rgba(12,25,38,.08); }
+    .ps-item-period { font-family:'Montserrat',sans-serif; font-weight:800; font-size:13px; color:var(--ps-navy); }
+    .ps-item-nett { font-family:'Montserrat',sans-serif; font-weight:800; font-size:13px; color:var(--ps-navy); }
+    .ps-view-btn { background:var(--ps-navy); color:#fff; border:none; border-radius:8px; padding:8px 16px; font-family:'Montserrat',sans-serif; font-size:11px; font-weight:700; letter-spacing:.02em; cursor:pointer; margin-left:14px; transition:all .15s; }
+    .ps-view-btn:hover { background:var(--ps-mint); color:var(--ps-navy); }
+
+    .ps-doc-head { display:flex; align-items:center; justify-content:space-between; padding:24px 28px; background:#fff; border-bottom:1px solid #e6e9ec; }
+    .ps-doc-tag { font-family:'Montserrat',sans-serif; font-size:10px; font-weight:800; letter-spacing:.1em; text-transform:uppercase; color:var(--ps-navy); background:var(--ps-lime); padding:5px 12px; border-radius:20px; }
+    .ps-doc-scroll { padding:24px 28px 4px; }
+    .ps-emp-row { display:flex; align-items:center; gap:14px; margin-bottom:22px; }
+    .ps-avatar { width:44px; height:44px; border-radius:50%; background:var(--ps-navy); color:var(--ps-lime); display:flex; align-items:center; justify-content:center; font-family:'Montserrat',sans-serif; font-weight:800; font-size:15px; flex-shrink:0; }
+    .ps-emp-name { font-family:'Montserrat',sans-serif; font-weight:800; font-size:16px; color:var(--ps-navy); line-height:1.2; }
+    .ps-emp-period { font-size:12px; color:#5b6b7a; margin-top:1px; }
+    .ps-row { display:none; } /* superseded by ps-emp-row */
+    .ps-block-label { font-size:10px; font-family:'Montserrat',sans-serif; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:#8b98a3; }
+    .ps-block-value { font-family:'Montserrat',sans-serif; font-weight:800; font-size:14px; color:var(--ps-navy); }
+    .ps-card { background:#fff; border:1px solid #e6e9ec; border-radius:12px; padding:16px 18px; margin-bottom:12px; }
+    .ps-section { background:#fff; border:1px solid #e6e9ec; border-radius:12px; padding:16px 18px; margin-bottom:12px; }
+    .ps-section-title { display:flex; align-items:center; gap:8px; font-family:'Montserrat',sans-serif; font-size:11px; font-weight:800; letter-spacing:.05em; text-transform:uppercase; color:var(--ps-navy); margin-bottom:10px; }
+    .ps-dot { width:8px; height:8px; border-radius:50%; display:inline-block; flex-shrink:0; }
+    .ps-dot.income { background:var(--ps-mint); }
+    .ps-dot.deduction { background:var(--ps-navy); }
+    .ps-dot.employer { background:var(--ps-lime); }
+    .ps-line { display:flex; justify-content:space-between; padding:5px 0; font-size:13px; color:#3d4a56; }
+    .ps-line.total { font-family:'Montserrat',sans-serif; font-weight:800; color:var(--ps-navy); border-top:1px solid #edf0f2; margin-top:6px; padding-top:10px; }
+    .ps-nett { background:linear-gradient(120deg, var(--ps-lime), var(--ps-mint)); border-radius:12px; padding:1.1rem 1.25rem; display:flex; justify-content:space-between; align-items:center; margin:4px 0 0; }
+    .ps-nett .lbl { font-family:'Montserrat',sans-serif; font-weight:800; font-size:12px; letter-spacing:.04em; text-transform:uppercase; color:var(--ps-navy); }
+    .ps-nett .val { font-family:'Montserrat',sans-serif; font-weight:900; font-size:22px; color:var(--ps-navy); }
+    .ps-actions-bar { padding:18px 28px 24px; background:var(--ps-offwhite); display:flex; justify-content:flex-end; gap:10px; }
+    .ps-btn-back { background:#fff; border:1px solid #d7dce0; color:var(--ps-navy); font-family:'Montserrat',sans-serif; font-size:12px; font-weight:700; padding:10px 18px; border-radius:8px; cursor:pointer; }
+    .ps-btn-back:hover { background:#eef1f3; }
+    .ps-btn-print { background:var(--ps-navy); color:var(--ps-lime); border:none; font-family:'Montserrat',sans-serif; font-size:12px; font-weight:800; padding:10px 20px; border-radius:8px; cursor:pointer; }
+    .ps-btn-print:hover { background:#152634; }
     @media print {
       body * { visibility:hidden; }
       #payslips-doc-view, #payslips-doc-view * { visibility:visible; }
       .modal-overlay { position:absolute; background:none; padding:0; }
       .modal-box { box-shadow:none; max-height:none; overflow:visible; }
-      #payslips-doc-view .modal-actions { display:none; }
+      #payslips-doc-view .ps-actions-bar { display:none; }
     }
     .modal-title { font-family:'Montserrat',sans-serif; font-weight:800; font-size:18px; color:var(--text); margin-bottom:6px; }
     .modal-sub { font-size:13px; color:var(--text2); margin-bottom:16px; }
@@ -698,26 +724,28 @@
 <div id="payslips-modal" class="modal-overlay" style="display:none" onclick="if(event.target===this) closePayslipsModal()">
   <div class="modal-box payslips-box">
     <div id="payslips-list-view">
-      <div class="modal-title">My Payslips</div>
-      <p class="modal-sub">Finalised payslips, most recent first.</p>
-      <div id="payslips-list-body" style="max-height:360px;overflow-y:auto;margin:14px 0">
-        <div class="skel" style="height:44px;margin-bottom:8px"></div>
-        <div class="skel" style="height:44px;margin-bottom:8px"></div>
-        <div class="skel" style="height:44px"></div>
+      <div class="ps-list-pad">
+        <div class="modal-title" style="color:var(--ps-navy)">My Payslips</div>
+        <p class="modal-sub">Finalised payslips, most recent first.</p>
+        <div id="payslips-list-body" style="max-height:360px;overflow-y:auto;margin:14px 0 4px">
+          <div class="skel" style="height:52px;margin-bottom:10px;border-radius:12px"></div>
+          <div class="skel" style="height:52px;margin-bottom:10px;border-radius:12px"></div>
+          <div class="skel" style="height:52px;border-radius:12px"></div>
+        </div>
       </div>
-      <div class="modal-actions">
-        <button class="modal-btn-cancel" onclick="closePayslipsModal()">Close</button>
+      <div class="ps-actions-bar">
+        <button class="ps-btn-back" onclick="closePayslipsModal()">Close</button>
       </div>
     </div>
     <div id="payslips-doc-view" style="display:none">
       <div class="ps-doc-head">
-        <img src="../trilogy-logo.png" alt="Trilogy BPO" style="height:22px">
+        <img src="trilogy-logo-dark.png" alt="Trilogy BPO" style="height:20px">
         <span class="ps-doc-tag">Payslip</span>
       </div>
-      <div id="payslips-doc-body"></div>
-      <div class="modal-actions">
-        <button class="modal-btn-cancel" onclick="backToPayslipsList()">← Back</button>
-        <button class="modal-btn-go" onclick="window.print()">Print / Save PDF</button>
+      <div class="ps-doc-scroll" id="payslips-doc-body" style="max-height:56vh;overflow-y:auto"></div>
+      <div class="ps-actions-bar">
+        <button class="ps-btn-back" onclick="backToPayslipsList()">← Back</button>
+        <button class="ps-btn-print" onclick="window.print()">Print / Save PDF</button>
       </div>
     </div>
   </div>
@@ -1334,15 +1362,17 @@ function showMyPayslipDoc(i) {
   var employerHtml = '';
   (sideline||[]).forEach(function(block){
     if (!Array.isArray(block) || block[0].toLowerCase() !== 'employer contribution') return;
-    employerHtml = '<div class="ps-section"><div class="ps-section-title">Employer Contributions</div>' + fmtLines(block[1]) +
+    employerHtml = '<div class="ps-section"><div class="ps-section-title"><span class="ps-dot employer"></span>Employer Contributions</div>' + fmtLines(block[1]) +
       '<div class="ps-line total"><span>Total</span><span>' + money2(totalOf(block[1])) + '</span></div></div>';
   });
+  var empName = S.employee.FirstName + ' ' + S.employee.LastName;
+  var empInitials = initials(empName);
   document.getElementById('payslips-doc-body').innerHTML =
-    '<div class="ps-row"><div><div class="ps-block-label">Employee</div><div class="ps-block-value">' + (S.employee.FirstName+' '+S.employee.LastName) + '</div></div>' +
-    '<div style="text-align:right"><div class="ps-block-label">Pay period</div><div class="ps-block-value">' + fmtDate(r.PeriodEndDate) + '</div></div></div>' +
-    '<div class="ps-section"><div class="ps-section-title">Income</div>' + fmtLines(income) +
+    '<div class="ps-emp-row"><div class="ps-avatar">' + empInitials + '</div>' +
+    '<div><div class="ps-emp-name">' + empName + '</div><div class="ps-emp-period">Pay period · ' + fmtDate(r.PeriodEndDate) + '</div></div></div>' +
+    '<div class="ps-section"><div class="ps-section-title"><span class="ps-dot income"></span>Income</div>' + fmtLines(income) +
     '<div class="ps-line total"><span>Total</span><span>' + money2(totalOf(income)) + '</span></div></div>' +
-    '<div class="ps-section"><div class="ps-section-title">Deductions</div>' + fmtLines(deduction) +
+    '<div class="ps-section"><div class="ps-section-title"><span class="ps-dot deduction"></span>Deductions</div>' + fmtLines(deduction) +
     '<div class="ps-line total"><span>Total</span><span>' + money2(totalOf(deduction)) + '</span></div></div>' +
     employerHtml +
     '<div class="ps-nett"><span class="lbl">Nett Pay</span><span class="val">' + money2(r.NettPay) + '</span></div>';
